@@ -28,17 +28,17 @@ router.post('/register/:token', async (req, res) => {
 
       await db.run(
         `INSERT INTO vendor_company_profiles (application_id, legal_name, trade_name, entity_type, date_of_incorporation, website) VALUES (?, ?, ?, ?, ?, ?)`,
-        [applicationId, formData.vendorLegalName || '', formData.vendorName || '', formData.businessType || 'Private Limited', formData.incorporationDate || '2000-01-01', formData.website || '']
+        [applicationId, formData.vendorLegalName || '', formData.vendorName || '', formData.entityType || 'Private Limited', formData.incorporationDate || '2000-01-01', formData.website || '']
       );
 
       await db.run(
         `INSERT INTO vendor_business_profiles (application_id, industry_category, primary_products, service_regions, gst_number, pan_number) VALUES (?, ?, ?, ?, ?, ?)`,
-        [applicationId, formData.industry || 'IT', formData.primaryProducts || '', formData.serviceRegions || '', formData.gstNumber || '', formData.panNumber || '']
+        [applicationId, formData.vendorCategory || 'IT', formData.primaryProducts || '', formData.serviceRegions || '', formData.gstin || '', formData.pan || '']
       );
 
       await db.run(
         `INSERT INTO vendor_financial_profiles (application_id, bank_name, account_name, account_number, ifsc_code) VALUES (?, ?, ?, ?, ?)`,
-        [applicationId, formData.bankName || 'Test Bank', formData.accountName || 'Test Account', formData.accountNumber || '123456789', formData.ifscCode || 'IFSC000123']
+        [applicationId, formData.bankName || 'Test Bank', formData.vendorLegalName || 'Account Name', formData.accountNumber || '', formData.ifsc || '']
       );
 
       await db.run(

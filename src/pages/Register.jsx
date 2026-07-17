@@ -78,6 +78,7 @@ export default function Register() {
   }
 
   const initialData = {
+    token: token,
     vendorName: invitationData.companyName || '',
     vendorLegalName: invitationData.companyName || '',
     contactPerson: invitationData.contactPerson || '',

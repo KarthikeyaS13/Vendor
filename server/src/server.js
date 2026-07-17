@@ -2,10 +2,17 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { getDb } from './config/db.js';
 import invitationsRouter from './routes/invitations.js';
 import vendorRouter from './routes/vendor.js';
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -65,7 +72,7 @@ app.get('/api/dashboard/queue', async (req, res) => {
       ORDER BY a.submitted_at DESC
       LIMIT 10
     `);
-    
+
     // Format the date if needed, or send as is
     const formattedQueue = queue.map(q => ({
       ...q,
@@ -104,6 +111,19 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-app.listen(PORT, () => {
+async function initDatabase() {
+  try {
+    const db = await getDb();
+    const schemaPath = path.join(__dirname, '..', 'database', 'schema.sql');
+    const schema = fs.readFileSync(schemaPath, 'utf8');
+    await db.exec(schema);
+    console.log('Database initialized successfully with SQLite schema.');
+  } catch (err) {
+    console.error('Error initializing database:', err);
+  }
+}
+
+app.listen(PORT, async () => {
+  await initDatabase();
   console.log(`Nexus API Server running on port ${PORT}`);
 });
