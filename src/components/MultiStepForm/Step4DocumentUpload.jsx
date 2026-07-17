@@ -43,7 +43,8 @@ const Step4DocumentUpload = () => {
             name: file.name,
             size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
             status: 'Uploaded',
-            url: URL.createObjectURL(file)
+            url: URL.createObjectURL(file),
+            file: file
           });
         }, 500);
       }

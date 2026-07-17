@@ -7,7 +7,8 @@ import {
   BarChart3, 
   Settings, 
   HelpCircle,
-  Activity
+  Activity,
+  Building2
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -20,6 +21,7 @@ const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { name: 'Invitations', path: '/invitations', icon: Mail },
   { name: 'Applications', path: '/applications', icon: FileText },
+  { name: 'Vendors', path: '/vendors', icon: Building2 },
   { name: 'Documents', path: '/documents', icon: FileBox },
   { name: 'Reports', path: '/reports', icon: BarChart3 },
   { name: 'Settings', path: '/settings', icon: Settings },

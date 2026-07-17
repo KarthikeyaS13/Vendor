@@ -7,6 +7,8 @@ const Success = () => {
   const location = useLocation();
   const applicationId = location.state?.applicationId || '#VR ' + Math.floor(1000 + Math.random() * 9000) + '-' + new Date().getFullYear();
 
+  const [showModal, setShowModal] = React.useState(false);
+
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
       {/* Decorative background elements similar to the screenshot */}
@@ -51,6 +53,7 @@ const Success = () => {
               Back to Home
             </button>
             <button 
+              onClick={() => setShowModal(true)}
               className="px-6 py-2.5 bg-white border border-slate-200 text-slate-700 text-sm font-bold rounded-lg hover:bg-slate-50 transition-colors shadow-sm"
             >
               View Submission
@@ -80,8 +83,42 @@ const Success = () => {
             </div>
           </div>
         </div>
-
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-5 border-b border-slate-100 bg-slate-50">
+              <h2 className="text-lg font-bold text-slate-800">Submission Details</h2>
+              <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                ✕
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-4">
+              {location.state?.formData ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {Object.entries(location.state.formData).filter(([k,v]) => k !== 'token' && typeof v === 'string' && v.trim() !== '').map(([key, value]) => (
+                    <div key={key} className="border-b border-slate-100 pb-2">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+                      <div className="text-sm font-medium text-slate-900 mt-1">{value}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-500 text-center py-4">No submission data available.</p>
+              )}
+            </div>
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+              <button 
+                onClick={() => setShowModal(false)}
+                className="px-5 py-2 bg-slate-200 text-slate-700 font-semibold text-sm rounded-lg hover:bg-slate-300 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

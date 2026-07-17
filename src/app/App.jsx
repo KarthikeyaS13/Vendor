@@ -6,6 +6,9 @@ import VendorLogin from '../pages/VendorLogin'
 import Invitations from '../pages/Invitations'
 import Success from '../pages/Success'
 
+import VendorList from '../pages/VendorList'
+import VendorProfile from '../pages/VendorProfile'
+
 function App() {
   return (
     <BrowserRouter>
@@ -17,6 +20,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="invitations" element={<Invitations />} />
+          <Route path="vendors" element={<VendorList />} />
+          <Route path="vendors/:id" element={<VendorProfile />} />
           <Route path="applications" element={<div className="p-6">Applications Placeholder</div>} />
           <Route path="documents" element={<div className="p-6">Documents Placeholder</div>} />
           <Route path="reports" element={<div className="p-6">Reports Placeholder</div>} />

@@ -1,0 +1,191 @@
+import express from 'express';
+import { getDb } from '../config/db.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadDir = path.join(__dirname, '../../uploads');
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir)
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+  }
+})
+
+const upload = multer({ storage: storage })
+
+const router = express.Router();
+
+// POST /api/vendors/upload
+// Handle document uploads during registration
+router.post('/upload', upload.array('documents'), async (req, res) => {
+  try {
+    const { applicationId, documentTypes } = req.body;
+    const files = req.files;
+    const db = await getDb();
+
+    if (!applicationId || !files || files.length === 0) {
+      return res.status(400).json({ error: 'Missing applicationId or documents.' });
+    }
+
+    let docTypesArray = [];
+    if (Array.isArray(documentTypes)) {
+      docTypesArray = documentTypes;
+    } else {
+      docTypesArray = [documentTypes];
+    }
+
+    // Insert document_types if they don't exist
+    for (const type of docTypesArray) {
+      const existingType = await db.get('SELECT id FROM document_types WHERE name = ?', [type]);
+      if (!existingType) {
+        await db.run('INSERT INTO document_types (name) VALUES (?)', [type]);
+      }
+    }
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const type = docTypesArray[i];
+      
+      const docType = await db.get('SELECT id FROM document_types WHERE name = ?', [type]);
+      
+      await db.run(
+        'INSERT INTO vendor_documents (application_id, document_type_id, file_name, file_path, file_size, mime_type) VALUES (?, ?, ?, ?, ?, ?)',
+        [applicationId, docType.id, file.originalname, '/uploads/' + file.filename, file.size, file.mimetype]
+      );
+    }
+    
+    res.json({ success: true, message: 'Documents uploaded successfully.' });
+  } catch (err) {
+    console.error('Error uploading documents:', err);
+    res.status(500).json({ error: 'Failed to upload documents.' });
+  }
+});
+
+// GET /api/vendors
+// Fetch all vendor master records
+router.get('/', async (req, res) => {
+  try {
+    const db = await getDb();
+    const vendors = await db.all(`
+      SELECT 
+        id,
+        vendor_code,
+        company_name,
+        contact_person,
+        email,
+        mobile,
+        industry,
+        status,
+        registration_date
+      FROM vendors
+      ORDER BY created_at DESC
+    `);
+    
+    res.json(vendors);
+  } catch (err) {
+    console.error('Error fetching vendors:', err);
+    res.status(500).json({ error: 'Failed to fetch vendors.' });
+  }
+});
+
+// GET /api/vendors/:id
+// Get comprehensive vendor details
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const db = await getDb();
+    
+    const vendor = await db.get('SELECT * FROM vendors WHERE id = ?', [id]);
+    if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
+    
+    // Fetch associated application profiles using application_id
+    const appId = vendor.application_id;
+    
+    const company = await db.get('SELECT * FROM vendor_company_profiles WHERE application_id = ?', [appId]);
+    const business = await db.get('SELECT * FROM vendor_business_profiles WHERE application_id = ?', [appId]);
+    const financial = await db.get('SELECT * FROM vendor_financial_profiles WHERE application_id = ?', [appId]);
+    const contacts = await db.all('SELECT * FROM vendor_contacts WHERE application_id = ?', [appId]);
+    const documents = await db.all(`
+      SELECT d.*, dt.name as document_type_name
+      FROM vendor_documents d
+      JOIN document_types dt ON d.document_type_id = dt.id
+      WHERE d.application_id = ?
+    `, [appId]);
+    
+    // Fetch audit timeline (status changes)
+    const auditLogs = await db.all(`
+      SELECT action, new_values, created_at 
+      FROM audit_logs 
+      WHERE entity_type = 'VENDOR' AND entity_id = ?
+      ORDER BY created_at DESC
+    `, [appId]); // we linked it to appId in the creation step
+
+    res.json({
+      vendor,
+      company,
+      business,
+      financial,
+      contacts,
+      documents,
+      auditLogs
+    });
+  } catch (err) {
+    console.error('Error fetching vendor details:', err);
+    res.status(500).json({ error: 'Failed to fetch vendor details.' });
+  }
+});
+
+// PATCH /api/vendors/:id/status
+// Update vendor status
+router.patch('/:id/status', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body; // 'Active', 'Inactive', 'Suspended', 'Blacklisted'
+
+  const validStatuses = ['Active', 'Inactive', 'Suspended', 'Blacklisted'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: 'Invalid status' });
+  }
+
+  try {
+    const db = await getDb();
+    
+    const vendor = await db.get('SELECT * FROM vendors WHERE id = ?', [id]);
+    if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
+
+    await db.run(
+      'UPDATE vendors SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      [status, id]
+    );
+
+    // Audit log
+    await db.run(`
+      INSERT INTO audit_logs (action, entity_type, entity_id, old_values, new_values)
+      VALUES (?, ?, ?, ?, ?)
+    `, [
+      `VENDOR_STATUS_UPDATED_TO_${status.toUpperCase()}`,
+      'VENDOR',
+      vendor.application_id,
+      JSON.stringify({ status: vendor.status }),
+      JSON.stringify({ status: status })
+    ]);
+
+    res.json({ success: true, message: `Vendor status updated to ${status}` });
+  } catch (err) {
+    console.error('Error updating vendor status:', err);
+    res.status(500).json({ error: 'Failed to update vendor status.' });
+  }
+});
+
+export default router;

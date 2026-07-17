@@ -19,6 +19,7 @@ const Step5Review = () => {
       
       const response = await invitationService.submitRegistration(formData.token, dataToSubmit);
       const applicationId = response.applicationId;
+      const applicationNumber = response.applicationNumber;
       
       const docs = Object.keys(formData.uploadedDocuments);
       if (docs.length > 0) {
@@ -29,15 +30,13 @@ const Step5Review = () => {
           formDataUpload.append('documentTypes', docId);
         });
         
-        // Keep the upload endpoint as is or update if necessary. Assuming /api/vendors/upload for now.
-        // If there's an issue with upload, we will handle it later. The registration data is what matters most here.
         await axios.post('/api/vendors/upload', formDataUpload, {
           headers: { 'Content-Type': 'multipart/form-data' }
         }).catch(err => console.warn('Document upload failed but registration succeeded.', err));
       }
       
       toast.success('Registration submitted successfully!');
-      navigate('/success', { state: { applicationId } });
+      navigate('/success', { state: { applicationId: applicationNumber, formData: dataToSubmit } });
     } catch (error) {
       console.error('Submission failed:', error);
       toast.error('Failed to submit registration. Please try again.');

@@ -13,6 +13,7 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
     'Company Details',
     'Tax Details',
     'Bank Details',
+    'Documents',
     'History'
   ];
 
@@ -163,8 +164,18 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
                     <p className="mt-1 text-blue-600 font-medium hover:underline cursor-pointer">{company?.website || 'N/A'}</p>
                   </div>
                   <div className="col-span-2">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Address (Placeholder)</label>
-                    <p className="mt-1 text-slate-900 font-medium">123 Business Avenue, Tech Park, City, Country</p>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Address</label>
+                    <p className="mt-1 text-slate-900 font-medium">
+                      {company?.address || 'N/A'}, {company?.city || 'N/A'}, {company?.state || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact Person</label>
+                    <p className="mt-1 text-slate-900 font-medium">{company?.contact_person || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</label>
+                    <p className="mt-1 text-slate-900 font-medium">{company?.email || 'N/A'}</p>
                   </div>
                 </div>
               </div>
@@ -194,6 +205,30 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Primary Products/Services</label>
                     <p className="mt-1 text-slate-900 font-medium">{business?.primary_products || 'N/A'}</p>
                   </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Vendor Type</label>
+                    <p className="mt-1 text-slate-900 font-medium">{business?.vendor_type || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">PF Registration</label>
+                    <p className="mt-1 text-slate-900 font-medium">{business?.pf_registration || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">ESI Registration</label>
+                    <p className="mt-1 text-slate-900 font-medium">{business?.esi_registration || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Labour Registration</label>
+                    <p className="mt-1 text-slate-900 font-medium">{business?.labour_registration || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">IT Filing</label>
+                    <p className="mt-1 text-slate-900 font-medium">{business?.it_filing || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">GST Filing</label>
+                    <p className="mt-1 text-slate-900 font-medium">{business?.gst_filing || 'N/A'}</p>
+                  </div>
                 </div>
               </div>
             )}
@@ -207,8 +242,16 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
                     <p className="mt-1 text-slate-900 font-medium">{financial?.bank_name}</p>
                   </div>
                   <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Branch Name</label>
+                    <p className="mt-1 text-slate-900 font-medium">{financial?.bank_branch || 'N/A'}</p>
+                  </div>
+                  <div>
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Account Name</label>
                     <p className="mt-1 text-slate-900 font-medium">{financial?.account_name}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Account Type</label>
+                    <p className="mt-1 text-slate-900 font-medium">{financial?.account_type || 'N/A'}</p>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Account Number</label>
@@ -231,6 +274,39 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
                  <div className="text-center py-12 text-slate-500">
                     <p>Audit history will be displayed here.</p>
                  </div>
+              </div>
+            )}
+
+            {activeTab === 'Documents' && (
+              <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-6">
+                <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Uploaded Documents</h3>
+                {applicationData?.documents?.length > 0 ? (
+                  <div className="space-y-4">
+                    {applicationData.documents.map((doc, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-4 border border-slate-200 rounded-lg bg-slate-50">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 text-emerald-500" />
+                          <div>
+                            <p className="text-sm font-bold text-slate-900">{doc.document_type_name || doc.file_name}</p>
+                            <p className="text-xs text-slate-500">{(doc.file_size / 1024 / 1024).toFixed(2)} MB • Uploaded on {new Date(doc.created_at).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+                        <a 
+                          href={doc.file_path} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-white border border-slate-200 text-sm font-bold text-blue-600 rounded-md shadow-sm hover:bg-slate-50"
+                        >
+                          View
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-slate-500">
+                    <p>No documents uploaded.</p>
+                  </div>
+                )}
               </div>
             )}
 

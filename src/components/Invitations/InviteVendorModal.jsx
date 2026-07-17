@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 export default function InviteVendorModal({ isOpen, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     companyName: '',
+    contactPerson: '',
     email: '',
   });
   const [loading, setLoading] = useState(false);
@@ -72,6 +73,21 @@ export default function InviteVendorModal({ isOpen, onClose, onSuccess }) {
                 className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
                 value={formData.companyName}
                 onChange={e => setFormData({...formData, companyName: e.target.value})}
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] items-center gap-4 border-b border-slate-100 pb-4">
+              <label className="text-sm font-medium text-slate-700 flex items-center gap-1">
+                Contact Name
+                <HelpCircle className="w-3 h-3 text-blue-500 cursor-help" />
+              </label>
+              <input 
+                type="text" 
+                required
+                placeholder="e.g. John Doe"
+                className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                value={formData.contactPerson}
+                onChange={e => setFormData({...formData, contactPerson: e.target.value})}
               />
             </div>
             

@@ -69,7 +69,7 @@ router.post('/', async (req, res) => {
                 <h1 style="margin: 0; font-size: 24px;">Nexus Vendor Portal</h1>
               </div>
               <div style="padding: 32px; color: #374151;">
-                <h2 style="margin-top: 0; color: #111827;">Dear ${companyName},</h2>
+                <h2 style="margin-top: 0; color: #111827;">Dear ${contactPerson},</h2>
                 <p>We are pleased to welcome you to the Nexus Vendor Portal. Your vendor portal account has been created successfully. Please use the login credentials below to access your account:</p>
                 
                 <div style="background-color: #f9fafb; padding: 16px; border-radius: 6px; margin: 24px 0;">

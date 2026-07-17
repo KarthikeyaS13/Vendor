@@ -14,7 +14,15 @@ router.post('/register/:token', async (req, res) => {
     if (!invitation) return res.status(404).json({ error: 'Invalid token.' });
     if (invitation.status === 'Completed') return res.status(400).json({ error: 'Already registered.' });
 
-    const appId = 'APP-' + Date.now();
+    let nextNumber = 1;
+    const lastApp = await db.get(`SELECT application_number FROM vendor_applications ORDER BY id DESC LIMIT 1`);
+    if (lastApp && lastApp.application_number && lastApp.application_number.startsWith('APP-')) {
+      const lastNumber = parseInt(lastApp.application_number.replace('APP-', ''), 10);
+      if (!isNaN(lastNumber)) {
+        nextNumber = lastNumber + 1;
+      }
+    }
+    const appId = `APP-${nextNumber.toString().padStart(4, '0')}`;
     
     await db.run('BEGIN TRANSACTION');
 
@@ -27,18 +35,66 @@ router.post('/register/:token', async (req, res) => {
       const applicationId = appResult.lastID;
 
       await db.run(
-        `INSERT INTO vendor_company_profiles (application_id, legal_name, trade_name, entity_type, date_of_incorporation, website) VALUES (?, ?, ?, ?, ?, ?)`,
-        [applicationId, formData.vendorLegalName || '', formData.vendorName || '', formData.entityType || 'Private Limited', formData.incorporationDate || '2000-01-01', formData.website || '']
+        `INSERT INTO vendor_company_profiles (application_id, legal_name, trade_name, entity_type, date_of_incorporation, website, address, city, state, contact_person, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          applicationId, 
+          formData.vendorLegalName || '', 
+          formData.vendorName || '', 
+          formData.entityType || 'Private Limited', 
+          formData.incorporationDate || '2000-01-01', 
+          formData.website || '',
+          formData.address || '',
+          formData.city || '',
+          formData.state || '',
+          formData.contactPerson || invitation.contactPerson || '',
+          formData.email1 || invitation.email || ''
+        ]
       );
 
       await db.run(
-        `INSERT INTO vendor_business_profiles (application_id, industry_category, primary_products, service_regions, gst_number, pan_number) VALUES (?, ?, ?, ?, ?, ?)`,
-        [applicationId, formData.vendorCategory || 'IT', formData.primaryProducts || '', formData.serviceRegions || '', formData.gstin || '', formData.pan || '']
+        `INSERT INTO vendor_business_profiles (application_id, industry_category, vendor_type, primary_products, service_regions, gst_number, pan_number, pf_registration, esi_registration, labour_registration, it_filing, gst_filing) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          applicationId, 
+          formData.vendorCategory || 'IT', 
+          formData.vendorType || '',
+          formData.primaryProducts || '', 
+          formData.serviceRegions || '', 
+          formData.gstin || '', 
+          formData.pan || '',
+          formData.pfRegistration || '',
+          formData.esiRegistration || '',
+          formData.labourRegistration || '',
+          formData.itFiling || '',
+          formData.gstFiling || ''
+        ]
       );
 
       await db.run(
-        `INSERT INTO vendor_financial_profiles (application_id, bank_name, account_name, account_number, ifsc_code) VALUES (?, ?, ?, ?, ?)`,
-        [applicationId, formData.bankName || 'Test Bank', formData.vendorLegalName || 'Account Name', formData.accountNumber || '', formData.ifsc || '']
+        `INSERT INTO vendor_financial_profiles (application_id, bank_name, bank_branch, account_name, account_number, account_type, ifsc_code) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          applicationId, 
+          formData.bankName || 'Test Bank', 
+          formData.bankBranch || '',
+          formData.vendorLegalName || 'Account Name', 
+          formData.accountNumber || '', 
+          formData.accountType || '',
+          formData.ifsc || ''
+        ]
+      );
+
+      // Insert primary contact
+      await db.run(
+        `INSERT INTO vendor_contacts (application_id, contact_type, first_name, last_name, email, phone, job_title, is_primary) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          applicationId,
+          'PRIMARY',
+          formData.contactPerson || invitation.contactPerson || 'Unknown',
+          '', // last name
+          formData.email1 || invitation.email || '',
+          formData.contactPhone || invitation.mobile || '',
+          'Account Manager',
+          1
+        ]
       );
 
       await db.run(
@@ -47,7 +103,7 @@ router.post('/register/:token', async (req, res) => {
       );
 
       await db.run('COMMIT');
-      res.json({ message: 'Registration successful', applicationId: appId });
+      res.json({ message: 'Registration successful', applicationId: applicationId, applicationNumber: appId });
     } catch (txErr) {
       await db.run('ROLLBACK');
       throw txErr;

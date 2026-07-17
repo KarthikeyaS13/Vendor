@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { getDb } from './config/db.js';
 import invitationsRouter from './routes/invitations.js';
 import vendorRouter from './routes/vendor.js';
+import vendorsRouter from './routes/vendors.js';
 import applicationsRouter from './routes/applications.js';
 dotenv.config();
 
@@ -24,8 +25,12 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/invitations', invitationsRouter);
-app.use('/api/vendor', vendorRouter);
+app.use('/api/vendor', vendorRouter); // Public onboarding route
 app.use('/api/applications', applicationsRouter);
+app.use('/api/vendors', vendorsRouter); // Vendor Master internal route
+
+// Serve uploaded documents
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Basic health check endpoint
 app.get('/api/health', async (req, res) => {
@@ -41,16 +46,20 @@ app.get('/api/health', async (req, res) => {
 app.get('/api/dashboard/stats', async (req, res) => {
   try {
     const db = await getDb();
+    
+    // Vendor Master Stats
+    const totalVendors = await db.get('SELECT COUNT(*) as count FROM vendors');
+    const activeVendors = await db.get('SELECT COUNT(*) as count FROM vendors WHERE status = ?', ['Active']);
+    const suspendedVendors = await db.get('SELECT COUNT(*) as count FROM vendors WHERE status = ?', ['Suspended']);
+    
+    // Application Stats
     const pendingQuery = await db.get('SELECT COUNT(*) as count FROM vendor_applications WHERE status = ?', ['IN_REVIEW']);
-    const approvedQuery = await db.get('SELECT COUNT(*) as count FROM vendor_applications WHERE status = ?', ['APPROVED']);
-    const rejectedQuery = await db.get('SELECT COUNT(*) as count FROM vendor_applications WHERE status = ?', ['REJECTED']);
-    const draftQuery = await db.get('SELECT COUNT(*) as count FROM vendor_applications WHERE status = ?', ['DRAFT']);
 
     res.json([
-      { name: 'Pending Approvals', value: pendingQuery?.count || 0, icon: 'Clock', color: 'text-amber-600', bg: 'bg-amber-100' },
-      { name: 'Approved Vendors', value: approvedQuery?.count || 0, icon: 'CheckCircle2', color: 'text-emerald-600', bg: 'bg-emerald-100' },
-      { name: 'Rejected Applications', value: rejectedQuery?.count || 0, icon: 'XCircle', color: 'text-rose-600', bg: 'bg-rose-100' },
-      { name: 'Incomplete Profiles', value: draftQuery?.count || 0, icon: 'AlertCircle', color: 'text-blue-600', bg: 'bg-blue-100' }
+      { name: 'Total Vendors', value: totalVendors?.count || 0, icon: 'FileText', color: 'text-blue-600', bg: 'bg-blue-100' },
+      { name: 'Active Vendors', value: activeVendors?.count || 0, icon: 'CheckCircle2', color: 'text-emerald-600', bg: 'bg-emerald-100' },
+      { name: 'Suspended Vendors', value: suspendedVendors?.count || 0, icon: 'AlertCircle', color: 'text-amber-600', bg: 'bg-amber-100' },
+      { name: 'Pending Approvals', value: pendingQuery?.count || 0, icon: 'Clock', color: 'text-purple-600', bg: 'bg-purple-100' }
     ]);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch stats' });
