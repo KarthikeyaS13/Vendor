@@ -132,7 +132,7 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const db = await getDb();
-    const invitations = await db.all('SELECT * FROM vendor_invitations ORDER BY created_at DESC');
+    const invitations = await db.all('SELECT id, invitationId as "invitationId", companyName as "companyName", contactPerson as "contactPerson", email, mobile, token, temp_password, invited_by, status, expires_at, opened_at, submitted_at, created_at, updated_at FROM vendor_invitations ORDER BY created_at DESC');
     res.json(invitations);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch invitations.' });
@@ -144,7 +144,7 @@ router.get('/:token', async (req, res) => {
   const { token } = req.params;
   try {
     const db = await getDb();
-    const invitation = await db.get('SELECT * FROM vendor_invitations WHERE token = ?', [token]);
+    const invitation = await db.get('SELECT id, invitationId as "invitationId", companyName as "companyName", contactPerson as "contactPerson", email, mobile, token, temp_password, invited_by, status, expires_at, opened_at, submitted_at, created_at, updated_at FROM vendor_invitations WHERE token = ?', [token]);
     
     if (!invitation) {
       return res.status(404).json({ error: 'Invitation not found or invalid.' });
@@ -178,7 +178,7 @@ router.post('/login', async (req, res) => {
 
   try {
     const db = await getDb();
-    const invitation = await db.get('SELECT * FROM vendor_invitations WHERE email = ? AND temp_password = ?', [email, password]);
+    const invitation = await db.get('SELECT id, invitationId as "invitationId", companyName as "companyName", contactPerson as "contactPerson", email, mobile, token, temp_password, invited_by, status, expires_at, opened_at, submitted_at, created_at, updated_at FROM vendor_invitations WHERE email = ? AND temp_password = ?', [email, password]);
 
     if (!invitation) {
       return res.status(401).json({ error: 'Invalid username or password.' });

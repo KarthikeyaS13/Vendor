@@ -12,13 +12,13 @@ router.get('/', async (req, res) => {
     const applications = await db.all(`
       SELECT 
         i.id as invitation_id,
-        i.invitationId,
+        i.invitationId as "invitationId",
         i.email,
         i.mobile,
         i.status as invitation_status,
         i.created_at as invitation_date,
         i.expires_at,
-        i.contactPerson,
+        i.contactPerson as "contactPerson",
         COALESCE(cp.legal_name, i.companyName) as company_name,
         a.id as application_id,
         a.application_number,
@@ -71,7 +71,7 @@ router.get('/:id', async (req, res) => {
   try {
     const db = await getDb();
     
-    const invitation = await db.get('SELECT * FROM vendor_invitations WHERE id = ?', [id]);
+    const invitation = await db.get('SELECT id, invitationId as "invitationId", companyName as "companyName", contactPerson as "contactPerson", email, mobile, token, temp_password, invited_by, status, expires_at, opened_at, submitted_at, created_at, updated_at FROM vendor_invitations WHERE id = ?', [id]);
     if (!invitation) return res.status(404).json({ error: 'Not found' });
     
     let application = null;
@@ -145,7 +145,7 @@ router.put('/:id/status', async (req, res) => {
         const company = await db.get('SELECT legal_name FROM vendor_company_profiles WHERE application_id = ?', [application.id]);
         const business = await db.get('SELECT industry_category, gst_number, pan_number FROM vendor_business_profiles WHERE application_id = ?', [application.id]);
         const contact = await db.get('SELECT first_name, email, phone FROM vendor_contacts WHERE application_id = ? AND is_primary = true', [application.id]);
-        const invitation = await db.get('SELECT contactPerson, email, mobile FROM vendor_invitations WHERE id = ?', [id]);
+        const invitation = await db.get('SELECT contactPerson as "contactPerson", email, mobile FROM vendor_invitations WHERE id = ?', [id]);
         
         await db.run(`
           INSERT INTO vendors (

@@ -9,7 +9,7 @@ router.post('/register/:token', async (req, res) => {
   
   try {
     const db = await getDb();
-    const invitation = await db.get('SELECT * FROM vendor_invitations WHERE token = ?', [token]);
+    const invitation = await db.get('SELECT id, invitationId as "invitationId", companyName as "companyName", contactPerson as "contactPerson", email, mobile, token, temp_password, invited_by, status, expires_at, opened_at, submitted_at, created_at, updated_at FROM vendor_invitations WHERE token = ?', [token]);
     
     if (!invitation) return res.status(404).json({ error: 'Invalid token.' });
     if (invitation.status === 'Completed') return res.status(400).json({ error: 'Already registered.' });
