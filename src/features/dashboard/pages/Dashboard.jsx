@@ -15,6 +15,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ data: [], isLoading: true, error: null });
   const [queue, setQueue] = useState({ data: [], isLoading: true, error: null });
   const [activities, setActivities] = useState({ data: [], isLoading: true, error: null });
+  const [metrics, setMetrics] = useState({ data: [], isLoading: true, error: null });
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   const loadData = () => {
@@ -35,6 +36,12 @@ export default function Dashboard() {
     dashboardService.getRecentActivities()
       .then(data => setActivities({ data: data || [], isLoading: false, error: null }))
       .catch(err => setActivities({ data: [], isLoading: false, error: err.message }));
+
+    // Fetch System Metrics
+    setMetrics(prev => ({ ...prev, isLoading: true, error: null }));
+    dashboardService.getSystemMetrics()
+      .then(data => setMetrics({ data: data || [], isLoading: false, error: null }))
+      .catch(err => setMetrics({ data: [], isLoading: false, error: err.message }));
   };
 
   useEffect(() => {
@@ -74,7 +81,7 @@ export default function Dashboard() {
           <div className="col-span-1 sm:col-span-2 lg:col-span-4 bg-surface-lowest border border-outline rounded-xl">
              <ErrorState title="Failed to load statistics" message={stats.error} onRetry={loadData} />
           </div>
-        ) : stats.data.length === 0 ? (
+        ) : !stats.data || !Array.isArray(stats.data) || stats.data.length === 0 ? (
           <div className="col-span-1 sm:col-span-2 lg:col-span-4 bg-surface-lowest border border-outline rounded-xl">
              <EmptyState title="No Statistics" description="No key metrics are available at this time." />
           </div>
@@ -130,7 +137,7 @@ export default function Dashboard() {
                         <ErrorState title="Failed to load queue" message={queue.error} onRetry={loadData} />
                       </td>
                     </tr>
-                  ) : queue.data.length === 0 ? (
+                  ) : !queue.data || !Array.isArray(queue.data) || queue.data.length === 0 ? (
                     <tr>
                       <td colSpan="5" className="p-0">
                         <EmptyState icon={ClipboardList} title="No Pending Approvals" description="There are no vendor applications awaiting your review." />
@@ -156,19 +163,33 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Charts Placeholder */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-surface-lowest border border-outline rounded-xl p-6 shadow-sm min-h-[300px] flex flex-col">
-              <h3 className="text-base font-semibold mb-4">Vendor Onboarding Trend</h3>
-              <div className="flex-1 border border-outline rounded-lg flex flex-col">
-                <EmptyState icon={ListX} title="No Data Available" description="Not enough data to generate trends." />
-              </div>
-            </div>
-            <div className="bg-surface-lowest border border-outline rounded-xl p-6 shadow-sm min-h-[300px] flex flex-col">
-              <h3 className="text-base font-semibold mb-4">Category Breakdown</h3>
-              <div className="flex-1 border border-outline rounded-lg flex flex-col">
-                 <EmptyState icon={ListX} title="No Data Available" description="No categories to display." />
-              </div>
+          {/* System Metrics */}
+          <div className="bg-surface-lowest border border-outline rounded-xl shadow-sm overflow-hidden min-h-[150px] flex flex-col p-6">
+            <h3 className="text-base font-semibold mb-4">P2P System Overview</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
+              {metrics.isLoading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="bg-surface rounded-lg p-4 flex flex-col items-center justify-center border border-outline">
+                     <Skeleton className="w-16 h-8 mb-2" />
+                     <Skeleton className="w-24 h-4" />
+                  </div>
+                ))
+              ) : metrics.error ? (
+                 <div className="col-span-3">
+                   <ErrorState title="Failed to load metrics" message={metrics.error} onRetry={loadData} />
+                 </div>
+              ) : !metrics.data || !Array.isArray(metrics.data) || metrics.data.length === 0 ? (
+                 <div className="col-span-3">
+                   <EmptyState title="No Metrics" description="System metrics are currently unavailable." />
+                 </div>
+              ) : (
+                metrics.data.map((metric, i) => (
+                  <div key={i} className="bg-surface rounded-lg p-4 flex flex-col items-center justify-center border border-outline text-center">
+                    <div className="text-2xl font-bold text-primary mb-1">{metric.value}</div>
+                    <div className="text-sm font-medium text-surface-on-variant">{metric.label}</div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -187,7 +208,7 @@ export default function Dashboard() {
                 </div>
               ) : activities.error ? (
                 <ErrorState title="Failed to load activity" message={activities.error} onRetry={loadData} />
-              ) : activities.data.length === 0 ? (
+              ) : !activities.data || !Array.isArray(activities.data) || activities.data.length === 0 ? (
                 <EmptyState title="No Recent Activities" description="There is no recent activity to show." />
               ) : (
                 <div className="relative border-l-2 border-outline/50 ml-3 space-y-6">

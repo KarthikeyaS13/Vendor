@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -38,15 +39,50 @@ const secondaryNavItems = [
 ];
 
 export default function Sidebar() {
+  const [logo, setLogo] = useState(localStorage.getItem('companyLogo'));
+  const [brandName, setBrandName] = useState(localStorage.getItem('brandName') || 'Vendor Management');
+
+  useEffect(() => {
+    const handleLogoUpdate = () => {
+      setLogo(localStorage.getItem('companyLogo'));
+    };
+    
+    const handleBrandNameUpdate = () => {
+      setBrandName(localStorage.getItem('brandName') || 'Vendor Management');
+    };
+
+    window.addEventListener('companyLogoUpdated', handleLogoUpdate);
+    window.addEventListener('brandNameUpdated', handleBrandNameUpdate);
+    
+    // Listen for cross-tab updates too
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'companyLogo') {
+        handleLogoUpdate();
+      }
+      if (e.key === 'brandName') {
+        handleBrandNameUpdate();
+      }
+    });
+
+    return () => {
+      window.removeEventListener('companyLogoUpdated', handleLogoUpdate);
+      window.removeEventListener('brandNameUpdated', handleBrandNameUpdate);
+    };
+  }, []);
+
   return (
     <aside className="w-64 flex flex-col border-r border-outline bg-surface-lowest shrink-0 md:flex hidden">
       {/* Brand */}
-      <div className="h-16 flex items-center px-6 border-b border-outline">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-primary-on font-bold text-lg">
-            N
-          </div>
-          <span className="font-semibold text-lg tracking-tight">Nexus Portal</span>
+      <div className="py-4 flex flex-col items-center justify-center border-b border-outline">
+        <div className="flex flex-col items-center gap-1 overflow-hidden w-full px-4">
+          {logo ? (
+            <img src={logo} alt="Logo" className="h-12 object-contain shrink-0 rounded-md" />
+          ) : (
+            <div className="w-12 h-12 bg-primary rounded-md flex items-center justify-center text-primary-on font-bold text-2xl shrink-0">
+              {brandName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <span className="font-semibold text-sm tracking-tight truncate text-center w-full" title={brandName}>{brandName}</span>
         </div>
       </div>
 

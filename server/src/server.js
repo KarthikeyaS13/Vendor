@@ -134,6 +134,64 @@ app.get('/api/dashboard/activities', async (req, res) => {
   }
 });
 
+app.get('/api/dashboard/system-metrics', async (req, res) => {
+  try {
+    const db = await getDb();
+    const poCount = await db.get('SELECT COUNT(*) as count FROM purchase_orders');
+    const invoiceCount = await db.get('SELECT COUNT(*) as count FROM purchase_invoices');
+    const paymentSum = await db.get('SELECT SUM(grand_total) as total FROM purchase_invoices WHERE status = ?', ['Paid']);
+    
+    res.json([
+      { label: 'Purchase Orders Issued', value: poCount?.count || 0 },
+      { label: 'Invoices Received', value: invoiceCount?.count || 0 },
+      { label: 'Total Payments Processed', value: paymentSum?.total ? `₹${paymentSum.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₹0.00' }
+    ]);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch system metrics' });
+  }
+});
+
+app.get('/api/settings/mail', (req, res) => {
+  res.json({
+    smtpHost: process.env.SMTP_HOST || '',
+    smtpPort: process.env.SMTP_PORT || '',
+    smtpUser: process.env.SMTP_USER || '',
+    smtpPass: process.env.SMTP_PASS || '',
+    fromName: process.env.FROM_NAME || ''
+  });
+});
+
+app.post('/api/settings/mail', (req, res) => {
+  const { smtpHost, smtpPort, smtpUser, smtpPass, fromName } = req.body;
+  const envPath = path.join(__dirname, '..', '.env');
+  
+  try {
+    let envContent = fs.readFileSync(envPath, 'utf8');
+    
+    const updateEnv = (key, value) => {
+      const regex = new RegExp(`^${key}=.*$`, 'm');
+      const newValue = `${key}=${value.includes(' ') ? `"${value}"` : value}`;
+      if (envContent.match(regex)) {
+        envContent = envContent.replace(regex, newValue);
+      } else {
+        envContent += `\n${newValue}`;
+      }
+      process.env[key] = value;
+    };
+
+    if (smtpHost !== undefined) updateEnv('SMTP_HOST', smtpHost);
+    if (smtpPort !== undefined) updateEnv('SMTP_PORT', smtpPort);
+    if (smtpUser !== undefined) updateEnv('SMTP_USER', smtpUser);
+    if (smtpPass !== undefined) updateEnv('SMTP_PASS', smtpPass);
+    if (fromName !== undefined) updateEnv('FROM_NAME', fromName);
+
+    fs.writeFileSync(envPath, envContent.trim() + '\n');
+    res.json({ message: 'Mail settings updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update mail settings' });
+  }
+});
+
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });

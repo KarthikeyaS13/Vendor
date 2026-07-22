@@ -28,5 +28,12 @@ export const dashboardService = {
    */
   async getApprovalQueue() {
     return apiClient('/dashboard/queue');
+  },
+
+  /**
+   * Fetches high-level system metrics (POs, Invoices, Payments).
+   */
+  async getSystemMetrics() {
+    return apiClient('/dashboard/system-metrics');
   }
 };
