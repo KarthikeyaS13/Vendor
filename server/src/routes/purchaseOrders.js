@@ -159,13 +159,19 @@ router.post('/', async (req, res) => {
 
     // Insert items if provided
     if (items && items.length > 0) {
-      for (const item of items) {
+      const validItems = items.filter(i => i.particulars && i.quantity && i.rate);
+      for (const item of validItems) {
         await db.run(`
           INSERT INTO purchase_order_items (
             purchase_order_id, line_number, particulars, quantity, rate, value
           ) VALUES (?, ?, ?, ?, ?, ?)
         `, [
-          poId, item.sl_no, item.particulars, item.quantity, item.rate, item.value
+          poId, 
+          item.sl_no, 
+          item.particulars, 
+          Number(item.quantity) || 0, 
+          Number(item.rate) || 0, 
+          Number(item.value) || 0
         ]);
       }
     }
@@ -240,13 +246,19 @@ router.put('/:id', async (req, res) => {
 
     // Insert new items if provided
     if (items && items.length > 0) {
-      for (const item of items) {
+      const validItems = items.filter(i => i.particulars && i.quantity && i.rate);
+      for (const item of validItems) {
         await db.run(`
           INSERT INTO purchase_order_items (
             purchase_order_id, line_number, particulars, quantity, rate, value
           ) VALUES (?, ?, ?, ?, ?, ?)
         `, [
-          poId, item.sl_no, item.particulars, item.quantity, item.rate, item.value
+          poId, 
+          item.sl_no, 
+          item.particulars, 
+          Number(item.quantity) || 0, 
+          Number(item.rate) || 0, 
+          Number(item.value) || 0
         ]);
       }
     }
