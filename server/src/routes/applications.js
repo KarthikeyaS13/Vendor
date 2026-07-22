@@ -144,7 +144,7 @@ router.put('/:id/status', async (req, res) => {
         // Fetch necessary details to populate the vendor master
         const company = await db.get('SELECT legal_name FROM vendor_company_profiles WHERE application_id = ?', [application.id]);
         const business = await db.get('SELECT industry_category, gst_number, pan_number FROM vendor_business_profiles WHERE application_id = ?', [application.id]);
-        const contact = await db.get('SELECT first_name, email, phone FROM vendor_contacts WHERE application_id = ? AND is_primary = 1', [application.id]);
+        const contact = await db.get('SELECT first_name, email, phone FROM vendor_contacts WHERE application_id = ? AND is_primary = true', [application.id]);
         const invitation = await db.get('SELECT contactPerson, email, mobile FROM vendor_invitations WHERE id = ?', [id]);
         
         await db.run(`
@@ -193,8 +193,8 @@ router.put('/:id/status', async (req, res) => {
             vendorEmail,
             passwordHash,
             'VENDOR',
-            1,
-            1
+            true,
+            true
           ]);
 
           // Mock Welcome Email

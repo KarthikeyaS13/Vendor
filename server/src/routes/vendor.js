@@ -93,7 +93,7 @@ router.post('/register/:token', async (req, res) => {
           formData.email1 || invitation.email || '',
           formData.contactPhone || invitation.mobile || '',
           'Account Manager',
-          1
+          true
         ]
       );
 

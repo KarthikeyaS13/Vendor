@@ -145,7 +145,7 @@ router.post('/vendor/change-password', async (req, res) => {
     const newPasswordHash = await bcrypt.hash(newPassword, 10);
     
     await db.run(
-      'UPDATE vendor_users SET password_hash = ?, must_change_password = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      'UPDATE vendor_users SET password_hash = ?, must_change_password = false, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       [newPasswordHash, vendorUser.id]
     );
 
