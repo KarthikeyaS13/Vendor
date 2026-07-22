@@ -192,13 +192,13 @@ export default function Invitations() {
   };
 
   return (
-    <div className="p-8">
+    <div className="space-y-4">
       <Toaster position="top-right" />
       
       {/* ... header ... */}
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Vendor Registrations</h1>
           <p className="text-slate-500 mt-1 text-sm">Manage invitations and vendor applications across the lifecycle.</p>
@@ -245,7 +245,7 @@ export default function Invitations() {
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className={`px-6 py-2.5 font-semibold text-slate-700 ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
+                      className={`px-3 py-2 font-semibold text-slate-700 ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
                       <div className="flex items-center gap-2">
@@ -288,7 +288,7 @@ export default function Invitations() {
                     onClick={() => openSlideOver(row)}
                   >
                     {row.getVisibleCells().map(cell => (
-                      <td key={cell.id} className="px-6 py-2.5">
+                      <td key={cell.id} className="px-3 py-2">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -300,7 +300,7 @@ export default function Invitations() {
         </div>
         
         {/* Pagination */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="text-sm text-slate-500">
             Showing {table.getRowModel().rows.length > 0 ? table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1 : 0} to {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)} of {table.getFilteredRowModel().rows.length} results
           </div>

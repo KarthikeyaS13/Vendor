@@ -23,18 +23,20 @@ CREATE TABLE IF NOT EXISTS roles (
 
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vendor_id INTEGER,
+    username TEXT,
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
+    first_name TEXT,
+    last_name TEXT,
     department_id INTEGER,
-    role_id INTEGER NOT NULL,
+    role TEXT NOT NULL DEFAULT 'VENDOR',
     is_active BOOLEAN DEFAULT 1,
     last_login DATETIME NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (department_id) REFERENCES departments(id),
-    FOREIGN KEY (role_id) REFERENCES roles(id)
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id),
+    FOREIGN KEY (department_id) REFERENCES departments(id)
 );
 
 -- -----------------------------------------------------
@@ -232,4 +234,102 @@ CREATE TABLE IF NOT EXISTS erp_sync_logs (
     last_sync_attempt DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (application_id) REFERENCES vendor_applications(id)
+);
+
+CREATE TABLE IF NOT EXISTS vendor_users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vendor_id INTEGER NOT NULL,
+    full_name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'VENDOR',
+    is_active BOOLEAN DEFAULT 1,
+    must_change_password BOOLEAN DEFAULT 1,
+    last_login DATETIME NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS purchase_orders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    po_number TEXT UNIQUE,
+    po_date DATE,
+    company_name TEXT,
+    company_address TEXT,
+    company_gstin TEXT,
+    vendor_id INTEGER,
+    vendor_name TEXT,
+    vendor_address TEXT,
+    vendor_gstin TEXT,
+    vendor_pan TEXT,
+    delivery_same_as_company BOOLEAN DEFAULT 1,
+    delivery_address TEXT,
+    delivery_city TEXT,
+    delivery_state TEXT,
+    delivery_pincode TEXT,
+    delivery_contact_person TEXT,
+    delivery_phone TEXT,
+    terms_and_conditions TEXT,
+    total_amount REAL,
+    status TEXT DEFAULT 'Draft' CHECK(status IN ('Draft', 'Submitted', 'Approved', 'Rejected', 'Issued')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id)
+);
+
+CREATE TABLE IF NOT EXISTS purchase_order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    purchase_order_id INTEGER NOT NULL,
+    line_number INTEGER NOT NULL,
+    particulars TEXT NOT NULL,
+    quantity REAL NOT NULL,
+    rate REAL NOT NULL,
+    value REAL NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS purchase_invoices (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    invoice_number TEXT NOT NULL UNIQUE,
+    invoice_date DATE NOT NULL,
+    delivery_challan_reference TEXT,
+    purchase_order_id INTEGER NOT NULL,
+    vendor_id INTEGER NOT NULL,
+    subtotal REAL NOT NULL DEFAULT 0,
+    gst_total REAL NOT NULL DEFAULT 0,
+    grand_total REAL NOT NULL DEFAULT 0,
+    status TEXT DEFAULT 'Submitted' CHECK(status IN ('Submitted', 'Under Review', 'Approved', 'Rejected', 'Clarification_Requested', 'Ready for Payment', 'Payment Processing', 'Paid', 'Closed')),
+    invoice_file TEXT,
+    payment_reference TEXT,
+    payment_mode TEXT,
+    bank_name TEXT,
+    payment_date DATE,
+    due_date DATE,
+    remarks TEXT,
+    submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    approved_at DATETIME,
+    paid_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (purchase_order_id) REFERENCES purchase_orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS purchase_invoice_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    invoice_id INTEGER NOT NULL,
+    purchase_order_item_id INTEGER NOT NULL,
+    ordered_quantity REAL NOT NULL,
+    supplied_quantity REAL NOT NULL,
+    rate REAL NOT NULL,
+    gst_rate REAL NOT NULL,
+    hsn_code TEXT NOT NULL,
+    tax_amount REAL NOT NULL,
+    line_total REAL NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (invoice_id) REFERENCES purchase_invoices(id) ON DELETE CASCADE,
+    FOREIGN KEY (purchase_order_item_id) REFERENCES purchase_order_items(id) ON DELETE CASCADE
 );

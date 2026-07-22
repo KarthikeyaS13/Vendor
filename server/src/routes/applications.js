@@ -1,5 +1,6 @@
 import express from 'express';
 import { getDb } from '../config/db.js';
+import bcrypt from 'bcrypt';
 
 const router = express.Router();
 
@@ -164,6 +165,63 @@ router.put('/:id/status', async (req, res) => {
           'Active'
         ]);
 
+        // Get the generated vendor id
+        const newVendor = await db.get('SELECT id FROM vendors WHERE application_id = ?', [application.id]);
+
+        if (newVendor) {
+          // Generate temporary 12-character password
+          const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+          let tempPassword = "";
+          for (let i = 0; i < 12; i++) {
+            tempPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+
+          // Hash the password
+          const passwordHash = await bcrypt.hash(tempPassword, 10);
+          
+          const vendorEmail = contact?.email || invitation?.email || 'Unknown';
+          const vendorName = company?.legal_name || 'Unknown';
+
+          // Insert into vendor_users
+          await db.run(`
+            INSERT INTO vendor_users (
+              vendor_id, full_name, email, password_hash, role, is_active, must_change_password
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+          `, [
+            newVendor.id,
+            contact?.first_name || invitation?.contactPerson || 'Unknown',
+            vendorEmail,
+            passwordHash,
+            'VENDOR',
+            1,
+            1
+          ]);
+
+          // Mock Welcome Email
+          console.log(`
+--------------------------------------------------
+Dear ${vendorName},
+
+Congratulations.
+Your Vendor Registration has been approved.
+
+Vendor Code
+${vendorCode}
+
+Portal Login
+${vendorEmail}
+
+Temporary Password
+${tempPassword}
+
+Portal URL
+http://localhost:5173/portal-login
+
+Please login and change your password immediately.
+--------------------------------------------------
+          `);
+        }
+
         // Create an audit log for Vendor Creation
         await db.run(`
           INSERT INTO audit_logs (action, entity_type, entity_id, new_values)
@@ -171,7 +229,7 @@ router.put('/:id/status', async (req, res) => {
         `, [
           'VENDOR_CREATED',
           'VENDOR',
-          application.id, // using application_id as a reference point for now, could use the new vendor.id
+          application.id, 
           JSON.stringify({ status: 'Active', vendor_code: vendorCode })
         ]);
       }

@@ -49,72 +49,72 @@ export default function InviteVendorModal({ isOpen, onClose, onSuccess }) {
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <div className="p-6">
           <h3 className="text-center text-lg font-semibold text-slate-800 mb-6">Invite Vendor Form</h3>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] items-center gap-4 border-b border-slate-100 pb-4">
-              <label className="text-sm font-medium text-slate-700 flex items-center gap-1">
-                Vendor Type
-                <HelpCircle className="w-3 h-3 text-blue-500 cursor-help" />
-              </label>
-              <div className="text-sm text-slate-600">Create New Vendor</div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] items-center gap-4 border-b border-slate-100 pb-4">
-              <label className="text-sm font-medium text-slate-700 flex items-center gap-1">
+
+
+            <div className="flex flex-col gap-1.5 pb-2">
+              <label className="text-sm font-medium text-slate-700">
                 Company Name
-                <HelpCircle className="w-3 h-3 text-blue-500 cursor-help" />
               </label>
-              <input 
-                type="text" 
-                required
-                className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                value={formData.companyName}
-                onChange={e => setFormData({...formData, companyName: e.target.value})}
-              />
+              <div>
+                <input
+                  type="text"
+                  required
+                  className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                  value={formData.companyName}
+                  onChange={e => setFormData({ ...formData, companyName: e.target.value })}
+                />
+                <p className="text-[11px] text-slate-500 mt-1">The registered legal name of the vendor's company.</p>
+              </div>
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] items-center gap-4 border-b border-slate-100 pb-4">
-              <label className="text-sm font-medium text-slate-700 flex items-center gap-1">
+
+            <div className="flex flex-col gap-1.5 pb-2">
+              <label className="text-sm font-medium text-slate-700">
                 Contact Name
-                <HelpCircle className="w-3 h-3 text-blue-500 cursor-help" />
               </label>
-              <input 
-                type="text" 
-                required
-                placeholder="e.g. John Doe"
-                className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                value={formData.contactPerson}
-                onChange={e => setFormData({...formData, contactPerson: e.target.value})}
-              />
+              <div>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Rahul Sharma"
+                  className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                  value={formData.contactPerson}
+                  onChange={e => setFormData({ ...formData, contactPerson: e.target.value })}
+                />
+                <p className="text-[11px] text-slate-500 mt-1">The primary person to contact at the vendor's company.</p>
+              </div>
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-[140px_1fr] items-center gap-4 border-b border-slate-100 pb-4">
-              <label className="text-sm font-medium text-slate-700 flex items-center gap-1">
+
+            <div className="flex flex-col gap-1.5 pb-2">
+              <label className="text-sm font-medium text-slate-700">
                 Email
-                <HelpCircle className="w-3 h-3 text-blue-500 cursor-help" />
               </label>
-              <input 
-                type="email" 
-                required
-                className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
-                value={formData.email}
-                onChange={e => setFormData({...formData, email: e.target.value})}
-              />
+              <div>
+                <input
+                  type="email"
+                  required
+                  className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                  value={formData.email}
+                  onChange={e => setFormData({ ...formData, email: e.target.value })}
+                />
+                <p className="text-[11px] text-slate-500 mt-1">Invitation link and login credentials will be sent to this address.</p>
+              </div>
             </div>
-            
+
             <div className="mt-6 flex gap-2">
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
                 className="px-4 py-2 rounded bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-70 flex items-center"
               >
                 {loading ? 'Sending...' : 'Send Invitation'}
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={onClose}
                 className="px-4 py-2 rounded bg-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-300 transition-colors"
               >

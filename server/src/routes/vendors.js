@@ -4,6 +4,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import bcrypt from 'bcrypt';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -80,17 +81,23 @@ router.get('/', async (req, res) => {
     const db = await getDb();
     const vendors = await db.all(`
       SELECT 
-        id,
-        vendor_code,
-        company_name,
-        contact_person,
-        email,
-        mobile,
-        industry,
-        status,
-        registration_date
-      FROM vendors
-      ORDER BY created_at DESC
+        v.id,
+        v.vendor_code,
+        v.company_name,
+        v.contact_person,
+        v.email,
+        v.mobile,
+        v.industry,
+        v.status,
+        v.gst_number,
+        v.pan_number,
+        v.registration_date,
+        vcp.address,
+        vcp.city,
+        vcp.state
+      FROM vendors v
+      LEFT JOIN vendor_company_profiles vcp ON v.application_id = vcp.application_id
+      ORDER BY v.created_at DESC
     `);
     
     res.json(vendors);
@@ -185,6 +192,52 @@ router.patch('/:id/status', async (req, res) => {
   } catch (err) {
     console.error('Error updating vendor status:', err);
     res.status(500).json({ error: 'Failed to update vendor status.' });
+  }
+});
+
+// POST /api/vendors/:id/credentials
+// Create login credentials for a vendor
+router.post('/:id/credentials', async (req, res) => {
+  const { id } = req.params;
+  const { email, password, fullName } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  try {
+    const db = await getDb();
+    
+    // Ensure vendor exists
+    const vendor = await db.get('SELECT id, contact_person FROM vendors WHERE id = ?', [id]);
+    if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
+    
+    // Check if email already exists in vendor_users table
+    const existingUser = await db.get('SELECT id FROM vendor_users WHERE email = ?', [email]);
+    if (existingUser) {
+      return res.status(409).json({ error: 'Email already in use for a vendor account' });
+    }
+
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    const result = await db.run(
+      'INSERT INTO vendor_users (vendor_id, full_name, email, password_hash, role) VALUES (?, ?, ?, ?, ?)',
+      [id, fullName || vendor.contact_person || 'Vendor Contact', email, passwordHash, 'VENDOR']
+    );
+
+    res.status(201).json({
+      success: true,
+      user: {
+        id: result.lastID,
+        vendorId: id,
+        email,
+        role: 'VENDOR'
+      }
+    });
+  } catch (error) {
+    console.error('Error creating vendor credentials:', error);
+    res.status(500).json({ error: 'Failed to create vendor credentials' });
   }
 });
 

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -31,15 +32,30 @@ const secondaryNavItems = [
 ];
 
 export default function Sidebar() {
+  const [logoUrl, setLogoUrl] = useState(localStorage.getItem('companyLogo'));
+
+  useEffect(() => {
+    const handleLogoUpdate = () => {
+      setLogoUrl(localStorage.getItem('companyLogo'));
+    };
+    
+    window.addEventListener('companyLogoUpdated', handleLogoUpdate);
+    return () => window.removeEventListener('companyLogoUpdated', handleLogoUpdate);
+  }, []);
+
   return (
     <aside className="w-64 flex flex-col border-r border-outline bg-surface-lowest shrink-0 md:flex hidden">
       {/* Brand */}
       <div className="h-16 flex items-center px-6 border-b border-outline">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-primary-on font-bold text-lg">
-            N
-          </div>
-          <span className="font-semibold text-lg tracking-tight">Nexus Portal</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Logo" className="w-8 h-8 rounded-md object-contain bg-white" />
+          ) : (
+            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center text-primary-on font-bold text-lg">
+              V
+            </div>
+          )}
+          <span className="font-semibold text-lg tracking-tight">Vendor Management</span>
         </div>
       </div>
 

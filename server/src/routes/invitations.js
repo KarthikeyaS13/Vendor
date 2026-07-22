@@ -34,7 +34,8 @@ router.post('/', async (req, res) => {
 
   try {
     const db = await getDb();
-    const tempPassword = Math.random().toString(36).slice(-8);
+    const emailPrefix = email.substring(0, 4);
+    const tempPassword = `${emailPrefix}2026`;
 
     await db.run(
       `INSERT INTO vendor_invitations 

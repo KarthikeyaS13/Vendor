@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import Register from './pages/Register'
 import Invitations from './pages/Invitations'
 import VendorLogin from './pages/VendorLogin'
+import Settings from './pages/Settings'
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
           <Route path="applications" element={<div className="p-6">Applications Placeholder</div>} />
           <Route path="documents" element={<div className="p-6">Documents Placeholder</div>} />
           <Route path="reports" element={<div className="p-6">Reports Placeholder</div>} />
-          <Route path="settings" element={<div className="p-6">Settings Placeholder</div>} />
+          <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
     </BrowserRouter>

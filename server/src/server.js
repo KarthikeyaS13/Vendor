@@ -6,10 +6,13 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { getDb } from './config/db.js';
+import authRouter from './routes/auth.js';
 import invitationsRouter from './routes/invitations.js';
 import vendorRouter from './routes/vendor.js';
 import vendorsRouter from './routes/vendors.js';
 import applicationsRouter from './routes/applications.js';
+import purchaseOrdersRouter from './routes/purchaseOrders.js';
+import invoicesRouter from './routes/invoices.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -24,10 +27,13 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/auth', authRouter);
 app.use('/api/invitations', invitationsRouter);
 app.use('/api/vendor', vendorRouter); // Public onboarding route
 app.use('/api/applications', applicationsRouter);
 app.use('/api/vendors', vendorsRouter); // Vendor Master internal route
+app.use('/api/purchase-orders', purchaseOrdersRouter);
+app.use('/api/invoices', invoicesRouter);
 
 // Serve uploaded documents
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

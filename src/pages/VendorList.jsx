@@ -151,11 +151,11 @@ export default function VendorList() {
   });
 
   return (
-    <div className="p-8">
+    <div className="space-y-4">
       <Toaster position="top-right" />
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Vendor Directory</h1>
           <p className="text-slate-500 mt-1 text-sm">Manage active, suspended, and blacklisted vendors.</p>
@@ -179,7 +179,7 @@ export default function VendorList() {
       </div>
 
       {/* Filters Area */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
         <div className="relative flex-1 w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
           <input 
@@ -221,7 +221,7 @@ export default function VendorList() {
                   {headerGroup.headers.map(header => (
                     <th 
                       key={header.id} 
-                      className={`px-6 py-2.5 font-semibold text-slate-700 ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
+                      className={`px-4 py-2 font-semibold text-slate-700 ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
                       <div className="flex items-center gap-2">
@@ -269,7 +269,7 @@ export default function VendorList() {
                     onClick={() => navigate(`/vendors/${row.original.id}`)}
                   >
                     {row.getVisibleCells().map(cell => (
-                      <td key={cell.id} className="px-6 py-2.5">
+                      <td key={cell.id} className="px-4 py-2">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -281,7 +281,7 @@ export default function VendorList() {
         </div>
         
         {/* Pagination */}
-        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="text-sm text-slate-500 font-medium">
             Showing {table.getRowModel().rows.length > 0 ? table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1 : 0} to {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)} of {table.getFilteredRowModel().rows.length} results
           </div>

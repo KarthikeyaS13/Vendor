@@ -16,7 +16,8 @@ import {
   Activity,
   ChevronDown,
   ChevronRight,
-  MoreHorizontal
+  MoreHorizontal,
+  Key
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -27,6 +28,11 @@ export default function VendorProfile() {
   const [loading, setLoading] = useState(true);
   const [expandedSection, setExpandedSection] = useState('company');
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  
+  // Credential States
+  const [vendorUsername, setVendorUsername] = useState('');
+  const [vendorPassword, setVendorPassword] = useState('');
+  const [isSubmittingCredentials, setIsSubmittingCredentials] = useState(false);
 
   useEffect(() => {
     loadVendorData();
@@ -62,6 +68,41 @@ export default function VendorProfile() {
     } catch (err) {
       toast.error('Failed to update vendor status');
       console.error(err);
+    }
+  };
+
+  const handleCreateCredential = async (e) => {
+    e.preventDefault();
+    setIsSubmittingCredentials(true);
+
+    try {
+      const response = await fetch(`/api/vendors/${id}/credentials`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: vendorUsername, // Using this field for email in the new architecture
+          password: vendorPassword,
+          fullName: vendorData.vendor.contact_person
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create credentials');
+      }
+
+      toast.success('Vendor credentials created successfully!');
+      setVendorUsername('');
+      setVendorPassword('');
+      // Optionally reload vendor data to show created accounts if backend returns them
+      loadVendorData();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsSubmittingCredentials(false);
     }
   };
 
@@ -284,6 +325,53 @@ export default function VendorProfile() {
                 ) : (
                   <p className="text-slate-500 text-sm italic">No documents available.</p>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* Login Credentials */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mt-4">
+            <SectionHeader id="credentials" title="Login Credentials" icon={Key} />
+            {expandedSection === 'credentials' && (
+              <div className="p-6 bg-slate-50/50">
+                <form autoComplete="off" onSubmit={handleCreateCredential} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                  <h3 className="text-sm font-medium text-slate-800 mb-4">Create Vendor Account</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address *</label>
+                      <input
+                        type="email"
+                        required
+                        value={vendorUsername}
+                        onChange={(e) => setVendorUsername(e.target.value)}
+                        className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 outline-none"
+                        placeholder="e.g. vendor@example.com"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Password *</label>
+                      <input
+                        type="password"
+                        required
+                        value={vendorPassword}
+                        onChange={(e) => setVendorPassword(e.target.value)}
+                        className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-1 focus:ring-blue-500 outline-none"
+                        placeholder="Enter temporary password"
+                        autoComplete="new-password"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button 
+                      type="submit" 
+                      disabled={isSubmittingCredentials}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    >
+                      {isSubmittingCredentials ? 'Creating...' : 'Create Account'}
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
           </div>

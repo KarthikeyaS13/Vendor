@@ -96,7 +96,7 @@ const Step5Review = () => {
           <ReviewRow label="GSTIN" value={formData.gstin} />
           <ReviewRow label="PF Reg No" value={formData.pfRegistration} />
           <ReviewRow label="ESI Reg No" value={formData.esiRegistration} />
-          <ReviewRow label="Labour Reg" value={formData.labourRegistration} />
+          <ReviewRow label="Labour License" value={formData.labourRegistration} />
           <ReviewRow label="IT Filing" value={formData.itFiling} />
           <ReviewRow label="GST Filing" value={formData.gstFiling} />
         </ReviewCard>

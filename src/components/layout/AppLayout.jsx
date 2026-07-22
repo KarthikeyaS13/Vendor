@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Sidebar from './Sidebar';
 import TopNav from './TopNav';
 
@@ -14,6 +15,7 @@ export default function AppLayout() {
           </div>
         </main>
       </div>
+      <Toaster position="top-center" />
     </div>
   );
 }

@@ -1,8 +1,16 @@
-import { Bell, Search, Menu } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { Bell, Search, Menu, LogOut } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function TopNav() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    navigate('/admin-login');
+  };
+
   const getPageTitle = () => {
     const path = location.pathname.split('/')[1] || 'dashboard';
     return path.charAt(0).toUpperCase() + path.slice(1);
@@ -42,6 +50,14 @@ export default function TopNav() {
             <span className="text-sm font-medium leading-none mb-1">Sarah Jenkins</span>
             <span className="text-xs text-surface-on-variant leading-none">Procurement</span>
           </div>
+        </button>
+
+        <button 
+          onClick={handleLogout}
+          className="ml-2 p-2 rounded-md hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors"
+          title="Logout"
+        >
+          <LogOut className="w-5 h-5" />
         </button>
       </div>
     </header>

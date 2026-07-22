@@ -1,8 +1,15 @@
-import { Bell, Search, Menu } from 'lucide-react';
+import { Bell, Search, Menu, LogOut } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function TopNav() {
   const location = useLocation();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
+
   const getPageTitle = () => {
     const path = location.pathname.split('/')[1] || 'dashboard';
     return path.charAt(0).toUpperCase() + path.slice(1);
@@ -36,12 +43,20 @@ export default function TopNav() {
         
         <button className="flex items-center gap-2 p-1 rounded-md hover:bg-surface-container transition-colors">
           <div className="w-8 h-8 rounded-full bg-primary-container text-primary-on-container flex items-center justify-center font-medium text-sm">
-            SJ
+            {user?.username ? user.username.substring(0, 2).toUpperCase() : 'U'}
           </div>
           <div className="hidden md:flex flex-col items-start mr-1">
-            <span className="text-sm font-medium leading-none mb-1">Sarah Jenkins</span>
-            <span className="text-xs text-surface-on-variant leading-none">Procurement</span>
+            <span className="text-sm font-medium leading-none mb-1">{user?.username || 'User'}</span>
+            <span className="text-xs text-surface-on-variant leading-none">{user?.role === 'VENDOR' ? 'Vendor' : 'Admin'}</span>
           </div>
+        </button>
+
+        <button 
+          onClick={handleLogout}
+          className="ml-2 p-2 rounded-md hover:bg-red-50 text-slate-500 hover:text-red-600 transition-colors"
+          title="Logout"
+        >
+          <LogOut className="w-5 h-5" />
         </button>
       </div>
     </header>

@@ -18,6 +18,25 @@ export const getDb = async () => {
     driver: sqlite3.Database
   });
   
+  // Run migrations
+  try {
+    await dbInstance.run('ALTER TABLE purchase_invoices ADD COLUMN due_date DATE');
+  } catch (e) {
+    // Column might already exist, ignore
+  }
+  
+  try {
+    await dbInstance.run('ALTER TABLE purchase_invoices ADD COLUMN bank_name TEXT');
+  } catch (e) {
+    // Column might already exist, ignore
+  }
+
+  try {
+    await dbInstance.run('ALTER TABLE purchase_invoices ADD COLUMN remarks TEXT');
+  } catch (e) {
+    // Column might already exist, ignore
+  }
+  
   return dbInstance;
 };
 

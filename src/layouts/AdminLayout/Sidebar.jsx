@@ -8,7 +8,10 @@ import {
   Settings, 
   HelpCircle,
   Activity,
-  Building2
+  Building2,
+  ShoppingCart,
+  Receipt,
+  Banknote
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -19,10 +22,13 @@ function cn(...inputs) {
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Invitations', path: '/invitations', icon: Mail },
+  { name: 'Onboarding Vendor', path: '/invitations', icon: Mail },
   { name: 'Applications', path: '/applications', icon: FileText },
   { name: 'Vendors', path: '/vendors', icon: Building2 },
   { name: 'Documents', path: '/documents', icon: FileBox },
+  { name: 'Purchase Orders', path: '/purchase-orders', icon: ShoppingCart },
+  { name: 'Invoices', path: '/invoices', icon: Receipt },
+  { name: 'Payments', path: '/payments', icon: Banknote },
   { name: 'Reports', path: '/reports', icon: BarChart3 },
   { name: 'Settings', path: '/settings', icon: Settings },
 ];
