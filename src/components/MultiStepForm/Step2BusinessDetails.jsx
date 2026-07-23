@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { step2Schema } from '../../lib/schema';
@@ -9,6 +9,24 @@ const Step2BusinessDetails = () => {
   const { formData, updateFormData, nextStep, prevStep, updateDocuments, removeDocument } = useFormContext();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [vendorOptions, setVendorOptions] = useState({
+    vendorType: ["Manufacturer", "Distributor", "Service Provider", "Retailer", "Consultant"],
+    vendorCategory: ["IT Services", "Office Supplies", "Logistics", "Raw Materials", "Marketing"]
+  });
+  
+  useEffect(() => {
+    fetch('/api/settings/options')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.vendorType) {
+          setVendorOptions({
+            vendorType: data.vendorType.map(o => o.value),
+            vendorCategory: data.vendorCategory.map(o => o.value)
+          });
+        }
+      })
+      .catch(err => console.error('Failed to fetch options', err));
+  }, []);
   
   const { register, control, getValues, watch, handleSubmit, formState: { errors, isValid } } = useForm({
     resolver: zodResolver(step2Schema),
@@ -100,13 +118,13 @@ const Step2BusinessDetails = () => {
             <PillSelector 
               name="vendorType" 
               label="Vendor Type"
-              options={["Manufacturer", "Distributor", "Service Provider", "Retailer", "Consultant"]}
+              options={vendorOptions.vendorType}
             />
             
             <PillSelector 
               name="vendorCategory" 
               label="Vendor Category"
-              options={["IT Services", "Office Supplies", "Logistics", "Raw Materials", "Marketing"]}
+              options={vendorOptions.vendorCategory}
             />
           </div>
 
@@ -127,6 +145,8 @@ const Step2BusinessDetails = () => {
                   <option value="Limited Liability Partnership (LLP)">Limited Liability Partnership (LLP)</option>
                   <option value="Proprietorship">Proprietorship</option>
                   <option value="Public Limited">Public Limited</option>
+                  <option value="One Person Company (OPC)">One Person Company (OPC)</option>
+                  <option value="Partnership Firm">Partnership Firm</option>
                   <option value="Others">Others</option>
                 </select>
                 {errors.entityType && <p className="mt-1 text-xs text-red-500">{errors.entityType.message}</p>}
@@ -191,7 +211,7 @@ const Step2BusinessDetails = () => {
 
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1.5">IT Filing (Y/N)</label>
+                  <label className="text-sm font-medium text-slate-700 block mb-1.5">IT filing (Done for the last 3years)</label>
                   <select {...register('itFiling')} className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
                     <option value="">Select</option>
                     <option value="Yes">Yes</option>
@@ -200,7 +220,7 @@ const Step2BusinessDetails = () => {
                   {errors.itFiling && <p className="mt-1 text-xs text-red-500">{errors.itFiling.message}</p>}
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1.5">GST Filings (Y/N)</label>
+                  <label className="text-sm font-medium text-slate-700 block mb-1.5">GST Filing (If upto Date)</label>
                   <select {...register('gstFiling')} className="w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
                     <option value="">Select</option>
                     <option value="Yes">Yes</option>
@@ -264,30 +284,7 @@ const Step2BusinessDetails = () => {
 
         </div>
 
-        {/* Right Column - Sidebar */}
-        <div className="w-full lg:w-80 shrink-0 space-y-6">
-          <div className="bg-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-600/20">
-            <div className="flex items-center gap-2 mb-3">
-              <Info className="w-5 h-5 text-blue-200" />
-              <h4 className="font-bold">Document Guide</h4>
-            </div>
-            <p className="text-sm text-blue-50 leading-relaxed mb-4">
-              Please ensure all numbers match your physical documents. You will be required to upload copies in the next step.
-            </p>
-            <ul className="text-sm text-blue-100 space-y-3">
-              <li className="flex gap-2">
-                <Check className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>CIN is required for all Corporate entities.</span>
-              </li>
-              <li className="flex gap-2">
-                <Check className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>PAN and GSTIN are mandatory for verification.</span>
-              </li>
-            </ul>
-          </div>
 
-
-        </div>
       </div>
 
       <div className="flex justify-between items-center mt-12 pt-6 border-t border-slate-100">

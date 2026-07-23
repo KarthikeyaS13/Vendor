@@ -1,5 +1,10 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 
-console.log("Checking if the error is due to something else in Node...");
-// Can't run PM2 commands remotely.
+try {
+  const log = execSync('git log -n 5 --oneline').toString();
+  const status = execSync('git status').toString();
+  fs.writeFileSync('git-status.txt', log + '\n\n' + status);
+} catch(e) {
+  fs.writeFileSync('git-status.txt', e.toString());
+}

@@ -8,13 +8,13 @@ export default function AdminInvoiceDetails({ invoiceId, onClose }) {
   
   // Status actions state
   const [actionNotes, setActionNotes] = useState('');
-  const [showStatusAction, setShowStatusAction] = useState(null); // 'Approve', 'Reject', 'Clarify'
+  const [showStatusAction, setShowStatusAction] = useState(null); // 'Accept', 'Reject', 'Clarify'
   const [isProcessing, setIsProcessing] = useState(false);
 
   const fetchInvoice = async () => {
     try {
       const res = await fetch(`/api/invoices/${invoiceId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
       });
       const data = await res.json();
       setInvoice(data);
@@ -43,7 +43,7 @@ export default function AdminInvoiceDetails({ invoiceId, onClose }) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         },
         body: JSON.stringify({ status, notes: actionNotes })
       });
@@ -95,7 +95,7 @@ export default function AdminInvoiceDetails({ invoiceId, onClose }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Submitted': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Approved': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'Accepted': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
       case 'Rejected': return 'bg-red-100 text-red-800 border-red-200';
       case 'Clarification_Requested': return 'bg-amber-100 text-amber-800 border-amber-200';
       case 'Paid': return 'bg-purple-100 text-purple-800 border-purple-200';
@@ -164,8 +164,20 @@ export default function AdminInvoiceDetails({ invoiceId, onClose }) {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => setShowStatusAction('Approve')} className="px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded hover:bg-emerald-700">Approve</button>
+                    <button onClick={() => setShowStatusAction('Accept')} className="px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded hover:bg-emerald-700">Accept</button>
                     <button onClick={() => setShowStatusAction('Reject')} className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700">Reject</button>
+                  </div>
+                </div>
+              )}
+
+              {invoice.status === 'Accepted' && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    <div>
+                      <h4 className="text-sm font-semibold text-emerald-900">Invoice Accepted</h4>
+                      <p className="text-xs text-emerald-700">This invoice has been accepted for payment.</p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -174,7 +186,7 @@ export default function AdminInvoiceDetails({ invoiceId, onClose }) {
               {showStatusAction && (
                 <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm animate-in fade-in zoom-in duration-200">
                    <h4 className="text-sm font-semibold text-slate-900 mb-2">
-                     {showStatusAction === 'Approve' && 'Approve Invoice'}
+                     {showStatusAction === 'Accept' && 'Accept Invoice'}
                      {showStatusAction === 'Reject' && 'Reject Invoice'}
                    </h4>
                    <textarea
@@ -182,15 +194,15 @@ export default function AdminInvoiceDetails({ invoiceId, onClose }) {
                      onChange={(e) => setActionNotes(e.target.value)}
                      className="w-full border border-slate-300 rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
                      rows="3"
-                     placeholder={showStatusAction === 'Approve' ? 'Add any approval notes (optional)' : 'Provide reason...'}
+                     placeholder={showStatusAction === 'Accept' ? 'Add any approval notes (optional)' : 'Provide reason...'}
                    ></textarea>
                    <div className="flex justify-end gap-2">
                       <button onClick={() => setShowStatusAction(null)} className="px-3 py-1.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded text-sm font-medium">Cancel</button>
                       <button 
                         disabled={isProcessing}
-                        onClick={() => handleStatusUpdate(showStatusAction === 'Approve' ? 'Approved' : 'Rejected')}
+                        onClick={() => handleStatusUpdate(showStatusAction === 'Accept' ? 'Accepted' : 'Rejected')}
                         className={`px-3 py-1.5 text-white rounded text-sm font-medium
-                          ${showStatusAction === 'Approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
+                          ${showStatusAction === 'Accept' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700'}`}
                       >
                         {isProcessing ? 'Processing...' : 'Confirm'}
                       </button>

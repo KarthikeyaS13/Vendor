@@ -56,7 +56,7 @@ export default function Landing() {
             </div>
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Admin Portal</h2>
             <p className="text-slate-500 mb-8 flex-1">
-              Internal access for Procurement and Finance teams to manage vendors, approve invoices, and track analytics.
+              Internal access for Procurement and Finance teams to manage vendors, accept invoices, and track analytics.
             </p>
             <div className="flex items-center text-slate-700 font-medium group-hover:gap-3 gap-2 transition-all">
               Staff Login <ArrowRight className="w-4 h-4" />
@@ -66,8 +66,8 @@ export default function Landing() {
         </div>
 
         {/* Footer */}
-        <div className="mt-16 text-center text-sm text-slate-500">
-          &copy; {new Date().getFullYear()} Powered by Finnovo All Rights Reserved.
+        <div className="mt-16 text-center text-base text-slate-500 font-medium tracking-wide">
+          &copy; {new Date().getFullYear()} powered by <a href="https://finnovo.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700 transition-colors">finnovo<sup className="text-xs">®</sup></a> All Rights Reserved.
         </div>
       </div>
     </div>

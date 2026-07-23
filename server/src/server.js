@@ -14,6 +14,7 @@ import applicationsRouter from './routes/applications.js';
 import purchaseOrdersRouter from './routes/purchaseOrders.js';
 import invoicesRouter from './routes/invoices.js';
 import documentsRouter from './routes/documents.js'; // Added documents route
+import settingsRouter from './routes/settings.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -44,6 +45,7 @@ app.use('/api/vendors', vendorsRouter); // Vendor Master internal route
 app.use('/api/purchase-orders', purchaseOrdersRouter);
 app.use('/api/invoices', invoicesRouter);
 app.use('/api/documents', documentsRouter); // Added documents route
+app.use('/api/settings', settingsRouter);
 
 // Serve uploaded documents
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

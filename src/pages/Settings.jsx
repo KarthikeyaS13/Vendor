@@ -7,7 +7,10 @@ import {
   Save,
   Key,
   Globe,
-  Mail
+  Mail,
+  List,
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 export default function Settings() {
@@ -26,9 +29,11 @@ export default function Settings() {
 
   const [formData, setFormData] = useState({
     brandName: localStorage.getItem('brandName') || 'Finnovo',
-    companyAddress: '123 Business Avenue, Tech District',
-    location: 'Mumbai, India',
-    autoApprove: false,
+    companyAddress: localStorage.getItem('companyAddress') || '123 Business Avenue, Tech District',
+    location: localStorage.getItem('location') || 'Mumbai, India',
+    companyPan: localStorage.getItem('companyPan') || '',
+    companyGst: localStorage.getItem('companyGst') || '',
+    autoAccept: false,
     emailNotifications: true,
   });
 
@@ -37,8 +42,15 @@ export default function Settings() {
     smtpPort: '',
     smtpUser: '',
     smtpPass: '',
+    smtpPass: '',
     fromName: ''
   });
+
+  const [vendorOptions, setVendorOptions] = useState({
+    vendorType: [],
+    vendorCategory: []
+  });
+  const [newOption, setNewOption] = useState({ category: 'vendorType', value: '' });
 
   useEffect(() => {
     // Fetch Mail Settings
@@ -46,12 +58,105 @@ export default function Settings() {
       .then(res => res.json())
       .then(data => setMailData(data))
       .catch(err => console.error('Failed to fetch mail settings', err));
+
+    fetchOptions();
   }, []);
+
+  const fetchOptions = async () => {
+    try {
+      const res = await fetch('/api/settings/options', {
+        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVendorOptions(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch vendor options', err);
+    }
+  };
+
+  const handleAddOption = async (e) => {
+    e.preventDefault();
+    if (!newOption.value.trim()) return;
+
+    try {
+      const res = await fetch('/api/settings/options', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        },
+        body: JSON.stringify(newOption)
+      });
+      if (res.ok) {
+        toast.success('Option added successfully');
+        setNewOption({ ...newOption, value: '' });
+        fetchOptions();
+      } else {
+        toast.error('Failed to add option (might be a duplicate)');
+      }
+    } catch (err) {
+      toast.error('Network error while adding option');
+    }
+  };
+
+  const handleDeleteOption = async (id) => {
+    try {
+      const res = await fetch(`/api/settings/options/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+      });
+      if (res.ok) {
+        toast.success('Option deleted successfully');
+        fetchOptions();
+      } else {
+        toast.error('Failed to delete option');
+      }
+    } catch (err) {
+      toast.error('Network error while deleting option');
+    }
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
     if (activeTab === 'general') {
+      const panValue = formData.companyPan.trim().toUpperCase();
+      const gstValue = formData.companyGst.trim().toUpperCase();
+
+      // Validate PAN
+      if (!panValue) {
+        toast.error('Please enter a valid PAN number.');
+        return;
+      }
+      const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (!panRegex.test(panValue)) {
+        toast.error('Please enter a valid PAN number.');
+        return;
+      }
+      
+      // Validate GSTIN
+      if (!gstValue) {
+        toast.error('Please enter a valid GSTIN.');
+        return;
+      }
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
+      if (!gstRegex.test(gstValue)) {
+        toast.error('Please enter a valid GSTIN.');
+        return;
+      }
+      
+      // Cross validate GST with PAN
+      if (gstValue.substring(2, 12) !== panValue) {
+        toast.error('PAN does not match the GSTIN.');
+        return;
+      }
+
       localStorage.setItem('brandName', formData.brandName);
+      localStorage.setItem('companyAddress', formData.companyAddress);
+      localStorage.setItem('location', formData.location);
+      localStorage.setItem('companyPan', panValue);
+      localStorage.setItem('companyGst', gstValue);
       window.dispatchEvent(new Event('brandNameUpdated'));
       toast.success('Settings saved successfully!');
     } else if (activeTab === 'mail') {
@@ -136,6 +241,14 @@ export default function Settings() {
               <Mail className="w-4 h-4" />
               Mail Configuration
             </button>
+            <button
+              onClick={() => setActiveTab('options')}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${activeTab === 'options' ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                }`}
+            >
+              <List className="w-4 h-4" />
+              Vendor Options
+            </button>
           </nav>
         </div>
 
@@ -215,7 +328,7 @@ export default function Settings() {
 
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Brand Name</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Legal Name</label>
                     <input
                       type="text"
                       className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -246,6 +359,31 @@ export default function Settings() {
                         className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Permanent Account Number (PAN) <span className="text-red-500">*</span></label>
+                      <input
+                        type="text"
+                        placeholder="ABCDE1234F"
+                        maxLength="10"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
+                        value={formData.companyPan}
+                        onChange={(e) => setFormData({ ...formData, companyPan: e.target.value.trim().toUpperCase() })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">GSTIN <span className="text-red-500">*</span></label>
+                      <input
+                        type="text"
+                        placeholder="29ABCDE1234F1Z5"
+                        maxLength="15"
+                        className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 uppercase"
+                        value={formData.companyGst}
+                        onChange={(e) => setFormData({ ...formData, companyGst: e.target.value.trim().toUpperCase() })}
                       />
                     </div>
                   </div>
@@ -316,7 +454,7 @@ export default function Settings() {
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="e.g. smtp.gmail.com"
                     value={mailData.smtpHost}
-                    onChange={(e) => setMailData({...mailData, smtpHost: e.target.value})}
+                    onChange={(e) => setMailData({ ...mailData, smtpHost: e.target.value })}
                   />
                 </div>
 
@@ -327,7 +465,7 @@ export default function Settings() {
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="e.g. 587"
                     value={mailData.smtpPort}
-                    onChange={(e) => setMailData({...mailData, smtpPort: e.target.value})}
+                    onChange={(e) => setMailData({ ...mailData, smtpPort: e.target.value })}
                   />
                 </div>
 
@@ -338,7 +476,7 @@ export default function Settings() {
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter SMTP email address"
                     value={mailData.smtpUser}
-                    onChange={(e) => setMailData({...mailData, smtpUser: e.target.value})}
+                    onChange={(e) => setMailData({ ...mailData, smtpUser: e.target.value })}
                   />
                 </div>
 
@@ -349,7 +487,7 @@ export default function Settings() {
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Enter SMTP password"
                     value={mailData.smtpPass}
-                    onChange={(e) => setMailData({...mailData, smtpPass: e.target.value})}
+                    onChange={(e) => setMailData({ ...mailData, smtpPass: e.target.value })}
                   />
                 </div>
 
@@ -360,7 +498,7 @@ export default function Settings() {
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="e.g. Vendor Portal"
                     value={mailData.fromName}
-                    onChange={(e) => setMailData({...mailData, fromName: e.target.value})}
+                    onChange={(e) => setMailData({ ...mailData, fromName: e.target.value })}
                   />
                 </div>
 
@@ -374,13 +512,85 @@ export default function Settings() {
             </form>
           )}
 
+          {activeTab === 'options' && (
+            <div className="p-4 sm:p-6">
+              <h2 className="text-lg font-semibold text-slate-800 mb-4">Vendor Form Options</h2>
+              <p className="text-sm text-slate-500 mb-6">Manage the dropdown choices available to vendors during onboarding.</p>
+
+              <form onSubmit={handleAddOption} className="mb-8 flex gap-3 max-w-lg items-end">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Category</label>
+                  <select 
+                    value={newOption.category} 
+                    onChange={(e) => setNewOption({ ...newOption, category: e.target.value })}
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="vendorType">Vendor Type</option>
+                    <option value="vendorCategory">Vendor Category</option>
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">New Option Value</label>
+                  <input
+                    type="text"
+                    required
+                    value={newOption.value}
+                    onChange={(e) => setNewOption({ ...newOption, value: e.target.value })}
+                    className="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g. Wholesaler"
+                  />
+                </div>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2 h-10">
+                  <Plus className="w-4 h-4" /> Add
+                </button>
+              </form>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-800 mb-3 border-b pb-2">Vendor Types</h3>
+                  <div className="space-y-2">
+                    {vendorOptions.vendorType?.map(opt => (
+                      <div key={opt.id} className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
+                        <span className="text-sm text-slate-700">{opt.value}</span>
+                        <button onClick={() => handleDeleteOption(opt.id)} className="text-slate-400 hover:text-red-500 transition-colors p-1">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {(!vendorOptions.vendorType || vendorOptions.vendorType.length === 0) && (
+                      <p className="text-xs text-slate-500 italic">No vendor types configured.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-800 mb-3 border-b pb-2">Vendor Categories</h3>
+                  <div className="space-y-2">
+                    {vendorOptions.vendorCategory?.map(opt => (
+                      <div key={opt.id} className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
+                        <span className="text-sm text-slate-700">{opt.value}</span>
+                        <button onClick={() => handleDeleteOption(opt.id)} className="text-slate-400 hover:text-red-500 transition-colors p-1">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {(!vendorOptions.vendorCategory || vendorOptions.vendorCategory.length === 0) && (
+                      <p className="text-xs text-slate-500 italic">No vendor categories configured.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+
         </div>
       </div>
 
       {/* Footer Branding */}
       <div className="mt-auto pt-4 text-center pb-2">
-        <p className="text-slate-400 text-xs font-medium tracking-wide">
-          powered by finnovo<sup className="text-[9px]">®</sup>
+        <p className="text-slate-500 text-sm font-medium tracking-wide">
+          powered by <a href="https://finnovo.io" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700 transition-colors">finnovo<sup className="text-[10px]">®</sup></a>
         </p>
       </div>
     </div>

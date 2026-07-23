@@ -14,7 +14,7 @@ export default function ViewPOModal({ poId, onClose }) {
       try {
         const res = await fetch(`/api/purchase-orders/${poId}`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
           }
         });
         const data = await res.json();
@@ -61,7 +61,7 @@ export default function ViewPOModal({ poId, onClose }) {
     switch (status) {
       case 'Draft': return 'bg-gray-100 text-gray-800 border-gray-200';
       case 'Submitted': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Approved': return 'bg-green-100 text-green-800 border-green-200';
+      case 'Accepted': return 'bg-green-100 text-green-800 border-green-200';
       case 'Rejected': return 'bg-red-100 text-red-800 border-red-200';
       case 'Issued': return 'bg-purple-100 text-purple-800 border-purple-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -121,17 +121,23 @@ export default function ViewPOModal({ poId, onClose }) {
             <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(po.status)}`}>
               {po.status || 'Draft'}
             </span>
-            {user?.role === 'VENDOR' && ['Approved', 'Submitted', 'Sent', 'Open', 'Issued'].includes(po.status) && (
-              <button 
-                onClick={() => {
-                  onClose();
-                  navigate(`/portal/invoices/new`, { state: { poId: po.id } });
-                }}
-                className="flex items-center gap-2 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors shadow-sm font-medium text-sm ml-2"
-              >
-                <FilePlus className="w-4 h-4" />
-                Submit Invoice
-              </button>
+            {user?.role === 'VENDOR' && ['Accepted', 'Submitted', 'Sent', 'Open', 'Issued'].includes(po.status) && (
+              po.items && po.items.length > 0 && po.items.every(item => Number(item.previously_invoiced_quantity || 0) >= Number(item.quantity)) ? (
+                <span className="text-sm font-medium text-slate-500 bg-slate-100 px-3 py-1.5 rounded-md ml-2 border border-slate-200">
+                  Invoice generated for all items
+                </span>
+              ) : (
+                <button 
+                  onClick={() => {
+                    onClose();
+                    navigate(`/portal/invoices/new`, { state: { poId: po.id } });
+                  }}
+                  className="flex items-center gap-2 bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors shadow-sm font-medium text-sm ml-2"
+                >
+                  <FilePlus className="w-4 h-4" />
+                  Submit Invoice
+                </button>
+              )
             )}
             <button onClick={handleDownloadPDF} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition-colors ml-2" title="Download PDF">
               <Download className="w-5 h-5" />

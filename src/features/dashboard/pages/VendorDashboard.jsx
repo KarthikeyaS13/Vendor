@@ -16,7 +16,7 @@ export default function VendorDashboard() {
     // Let's try to fetch real PO count
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         const res = await fetch('/api/purchase-orders', {
           headers: {
             'Authorization': `Bearer ${token}`

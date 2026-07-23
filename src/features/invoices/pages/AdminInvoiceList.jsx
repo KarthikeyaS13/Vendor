@@ -6,13 +6,13 @@ export default function AdminInvoiceList() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
-  const [filterStatus, setFilterStatus] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('Submitted');
 
   const fetchInvoices = async () => {
     try {
       const response = await fetch('/api/invoices', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }
       });
       const data = await response.json();
@@ -36,7 +36,7 @@ export default function AdminInvoiceList() {
   const getStatusStyle = (status) => {
     switch (status) {
       case 'Submitted': return { color: 'text-blue-700', bg: 'bg-blue-100', border: 'border-blue-200', icon: Clock };
-      case 'Approved': return { color: 'text-emerald-700', bg: 'bg-emerald-100', border: 'border-emerald-200', icon: CheckCircle2 };
+      case 'Accepted': return { color: 'text-emerald-700', bg: 'bg-emerald-100', border: 'border-emerald-200', icon: CheckCircle2 };
       case 'Rejected': return { color: 'text-red-700', bg: 'bg-red-100', border: 'border-red-200', icon: XCircle };
       case 'Clarification_Requested': return { color: 'text-amber-700', bg: 'bg-amber-100', border: 'border-amber-200', icon: Clock };
       case 'Paid': return { color: 'text-purple-700', bg: 'bg-purple-100', border: 'border-purple-200', icon: CheckCircle2 };
@@ -84,7 +84,7 @@ export default function AdminInvoiceList() {
           >
             <option value="All">All Statuses</option>
             <option value="Submitted">Pending Review</option>
-            <option value="Approved">Approved for Payment</option>
+            <option value="Accepted">Accepted for Payment</option>
             <option value="Clarification_Requested">Clarification Requested</option>
             <option value="Paid">Paid</option>
             <option value="Rejected">Rejected</option>
@@ -102,7 +102,6 @@ export default function AdminInvoiceList() {
                 <th className="px-4 py-3">Vendor</th>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3 text-right">Amount (₹)</th>
-                <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -150,18 +149,12 @@ export default function AdminInvoiceList() {
                       <td className="px-4 py-3 text-right font-medium text-slate-900">
                         {inv.grand_total ? inv.grand_total.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00'}
                       </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium border ${style.bg} ${style.color} ${style.border}`}>
-                          <StatusIcon className="w-3 h-3" />
-                          {inv.status ? inv.status.replace('_', ' ') : 'Unknown'}
-                        </span>
-                      </td>
                       <td className="px-4 py-3 text-right">
                         <button 
                           onClick={() => setSelectedInvoiceId(inv.id)}
-                          className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                          className={`font-medium text-sm transition-colors ${inv.status === 'Accepted' ? 'text-emerald-600 hover:text-emerald-800' : 'text-blue-600 hover:text-blue-800'}`}
                         >
-                          Review
+                          {inv.status === 'Accepted' ? 'Accepted' : 'Review'}
                         </button>
                       </td>
                     </tr>

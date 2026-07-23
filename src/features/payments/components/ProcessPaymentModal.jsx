@@ -19,7 +19,7 @@ export default function ProcessPaymentModal({ invoiceId, onClose }) {
     const fetchInvoice = async () => {
       try {
         const res = await fetch(`/api/invoices/${invoiceId}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
         });
         const data = await res.json();
         setInvoice(data);
@@ -44,7 +44,7 @@ export default function ProcessPaymentModal({ invoiceId, onClose }) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         },
         body: JSON.stringify(paymentData)
       });

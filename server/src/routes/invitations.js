@@ -74,11 +74,11 @@ router.post('/', async (req, res) => {
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
               <div style="background-color: #6366f1; padding: 24px; text-align: center; color: white;">
-                <h1 style="margin: 0; font-size: 24px;">Nexus Vendor Portal</h1>
+                <h1 style="margin: 0; font-size: 24px;">${process.env.FROM_NAME || 'Vendor Portal'}</h1>
               </div>
               <div style="padding: 32px; color: #374151;">
                 <h2 style="margin-top: 0; color: #111827;">Dear ${contactPerson},</h2>
-                <p>We are pleased to welcome you to the Nexus Vendor Portal. Your vendor portal account has been created successfully. Please use the login credentials below to access your account:</p>
+                <p>We are pleased to welcome you to the ${process.env.FROM_NAME || 'Vendor Portal'}. Your vendor portal account has been created successfully. Please use the login credentials below to access your account:</p>
                 
                 <div style="background-color: #f9fafb; padding: 16px; border-radius: 6px; margin: 24px 0;">
                   <table style="width: 100%; text-align: left; border-collapse: collapse;">
@@ -109,7 +109,7 @@ router.post('/', async (req, res) => {
                 </div>
 
                 <p style="margin-bottom: 4px; color: #6b7280; font-size: 14px;">Best regards,</p>
-                <p style="margin-top: 0; font-weight: bold; color: #111827;">Nexus Procurement Team</p>
+                <p style="margin-top: 0; font-weight: bold; color: #111827;">${process.env.FROM_NAME || 'Procurement Team'}</p>
               </div>
               <div style="background-color: #6366f1; padding: 16px; text-align: center; color: rgba(255, 255, 255, 0.8); font-size: 12px;">
                 Vendor Onboarding Process<br>

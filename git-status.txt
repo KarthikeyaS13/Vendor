@@ -1,0 +1,16 @@
+289920b Removed Date of Incorporation and fixed Invoice Roles
+98a6054 Update RBAC roles for procurement and finance
+22de3c2 fix: stabilize registration workflow, fix db schema init errors, and update invoice authorization roles
+079f443 added the validtaions for the fields
+e87e199 Fix document upload context bug and remove deprecated UI fields
+
+
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   server/test.js
+
+no changes added to commit (use "git add" and/or "git commit -a")

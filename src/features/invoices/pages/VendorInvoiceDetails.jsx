@@ -8,7 +8,7 @@ export default function VendorInvoiceDetails({ invoiceId, onClose }) {
   const fetchInvoice = async () => {
     try {
       const res = await fetch(`/api/invoices/${invoiceId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
       });
       const data = await res.json();
       setInvoice(data);
@@ -39,7 +39,7 @@ export default function VendorInvoiceDetails({ invoiceId, onClose }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Submitted': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Approved': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'Accepted': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
       case 'Rejected': return 'bg-red-100 text-red-800 border-red-200';
       case 'Clarification_Requested': return 'bg-amber-100 text-amber-800 border-amber-200';
       case 'Paid': return 'bg-purple-100 text-purple-800 border-purple-200';

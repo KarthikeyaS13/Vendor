@@ -17,7 +17,7 @@ export default function VendorDocumentsList() {
     try {
       const response = await fetch('/api/documents/vendors', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }
       });
       if (!response.ok) throw new Error('Failed to fetch vendors');

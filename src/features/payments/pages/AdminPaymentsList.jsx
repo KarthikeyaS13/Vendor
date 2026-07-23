@@ -7,19 +7,20 @@ export default function AdminPaymentsList() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('Due');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
 
   const fetchPaymentsQueue = async () => {
     try {
       const res = await fetch('/api/invoices', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }
       });
       const data = await res.json();
       
       // Filter for invoices ready for payment or already paid
-      const paymentInvoices = data.filter(inv => ['Approved', 'Ready for Payment', 'Payment Processing', 'Paid'].includes(inv.status));
+      const paymentInvoices = data.filter(inv => ['Accepted', 'Ready for Payment', 'Payment Processing', 'Paid'].includes(inv.status));
       setInvoices(paymentInvoices);
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -33,18 +34,24 @@ export default function AdminPaymentsList() {
     fetchPaymentsQueue();
   }, []);
 
-  const filteredInvoices = invoices.filter(inv => 
-    inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const filteredInvoices = invoices.filter(inv => {
+    const matchesSearch = inv.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
     inv.vendor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    inv.po_number.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    (inv.po_number && inv.po_number.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesFilter = filterStatus === 'All' 
+      ? true 
+      : (filterStatus === 'Paid' ? inv.status === 'Paid' : inv.status !== 'Paid');
+      
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <div className="p-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Payments</h1>
-          <p className="text-slate-500">Manage and process approved invoice payments.</p>
+          <p className="text-slate-500">Manage and process accepted invoice payments.</p>
         </div>
       </div>
 
@@ -60,9 +67,18 @@ export default function AdminPaymentsList() {
               className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors">
-            <Filter className="w-4 h-4" /> Filter
-          </button>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Due">Due</option>
+              <option value="Paid">Paid</option>
+            </select>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -71,9 +87,9 @@ export default function AdminPaymentsList() {
               <tr>
                 <th className="px-6 py-4">Invoice No</th>
                 <th className="px-6 py-4">Vendor</th>
-                <th className="px-6 py-4">PO Number</th>
                 <th className="px-6 py-4 text-right">Amount (₹)</th>
-                <th className="px-6 py-4">Due Date</th>
+                <th className="px-6 py-4 text-right">Amount Paid (₹)</th>
+                <th className="px-6 py-4 text-right">To Be Paid (₹)</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4 text-center">Action</th>
               </tr>
@@ -81,14 +97,14 @@ export default function AdminPaymentsList() {
             <tbody className="divide-y divide-slate-200">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
                     <span className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin inline-block mb-2"></span>
                     <p>Loading payments...</p>
                   </td>
                 </tr>
               ) : filteredInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan="6" className="px-6 py-12 text-center text-slate-500">
                     No invoices found in payment queue.
                   </td>
                 </tr>
@@ -97,21 +113,23 @@ export default function AdminPaymentsList() {
                   <tr key={inv.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 font-medium text-slate-900">{inv.invoice_number}</td>
                     <td className="px-6 py-4 text-slate-600">{inv.vendor_name}</td>
-                    <td className="px-6 py-4 text-blue-600 font-medium">{inv.po_number}</td>
                     <td className="px-6 py-4 text-right font-bold text-slate-900">
                       {inv.grand_total ? inv.grand_total.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00'}
                     </td>
-                    <td className="px-6 py-4 text-slate-600">
-                      {inv.due_date ? new Date(inv.due_date).toLocaleDateString() : 'Pending'}
+                    <td className="px-6 py-4 text-right font-medium text-emerald-600">
+                      {inv.status === 'Paid' ? (inv.grand_total ? inv.grand_total.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00') : '0.00'}
+                    </td>
+                    <td className="px-6 py-4 text-right font-medium text-amber-600">
+                      {inv.status !== 'Paid' ? (inv.grand_total ? inv.grand_total.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : '0.00') : '0.00'}
                     </td>
                     <td className="px-6 py-4">
                       {inv.status === 'Paid' ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
-                          Paid
+                          Paid Completely
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
-                          Ready
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+                          Due
                         </span>
                       )}
                     </td>

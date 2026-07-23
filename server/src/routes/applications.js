@@ -104,10 +104,10 @@ router.get('/:id', async (req, res) => {
 });
 
 // PUT /api/applications/:id/status
-// Update application status (e.g., Approve, Reject)
+// Update application status (e.g., Accept, Reject)
 router.put('/:id/status', async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body; // 'APPROVED' or 'REJECTED'
+  const { status } = req.body; // 'ACCEPTED' or 'REJECTED'
 
   try {
     const db = await getDb();
@@ -124,8 +124,8 @@ router.put('/:id/status', async (req, res) => {
       [status, application.id]
     );
 
-    // Phase 2: If APPROVED, create a vendor master record
-    if (status === 'APPROVED') {
+    // Phase 2: If ACCEPTED, create a vendor master record
+    if (status === 'ACCEPTED') {
       // Check if vendor already exists to prevent duplicates
       const existingVendor = await db.get('SELECT id FROM vendors WHERE application_id = ?', [application.id]);
       
@@ -206,7 +206,7 @@ router.put('/:id/status', async (req, res) => {
 Dear ${vendorName},
 
 Congratulations.
-Your Vendor Registration has been approved.
+Your Vendor Registration has been accepted.
 
 Vendor Code
 ${vendorCode}

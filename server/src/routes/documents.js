@@ -5,12 +5,12 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = express.Router();
 
 // GET /api/documents/vendors
-// Fetches all approved vendors with their total document count
+// Fetches all accepted vendors with their total document count
 router.get('/vendors', authenticateToken, async (req, res) => {
   try {
     const db = await getDb();
     
-    // We only show vendors whose application is approved or vendors who are Active
+    // We only show vendors whose application is accepted or vendors who are Active
     const query = `
       SELECT 
         v.id,

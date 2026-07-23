@@ -33,10 +33,7 @@ const navItems = [
   { name: 'Settings', path: '/settings', icon: Settings },
 ];
 
-const secondaryNavItems = [
-  { name: 'Status', path: '/status', icon: Activity },
-  { name: 'Help Center', path: '/help', icon: HelpCircle },
-];
+
 
 export default function Sidebar() {
   const [logo, setLogo] = useState(localStorage.getItem('companyLogo'));
@@ -108,24 +105,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Secondary Navigation */}
-      <div className="p-4 border-t border-outline space-y-1">
-        {secondaryNavItems.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.path}
-            className={({ isActive }) => cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-              isActive
-                ? "bg-primary-container/10 text-primary font-medium"
-                : "text-surface-on-variant hover:bg-surface-container hover:text-surface-on"
-            )}
-          >
-            <item.icon className="w-5 h-5" />
-            {item.name}
-          </NavLink>
-        ))}
-      </div>
     </aside>
   );
 }

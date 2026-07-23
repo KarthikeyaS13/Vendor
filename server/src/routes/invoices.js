@@ -223,7 +223,7 @@ router.put('/:id/status', async (req, res) => {
   }
 
   const { status, remarks } = req.body;
-  const validStatuses = ['Under Review', 'Approved', 'Rejected', 'Clarification_Requested', 'Ready for Payment', 'Payment Processing', 'Paid', 'Closed'];
+  const validStatuses = ['Under Review', 'Accepted', 'Rejected', 'Clarification_Requested', 'Ready for Payment', 'Payment Processing', 'Paid', 'Closed'];
   
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ error: 'Invalid status' });
@@ -231,7 +231,7 @@ router.put('/:id/status', async (req, res) => {
 
   try {
     const db = await getDb();
-    const updateField = status === 'Approved' ? 'approved_at = CURRENT_TIMESTAMP' : 'updated_at = CURRENT_TIMESTAMP';
+    const updateField = status === 'Accepted' ? 'accepted_at = CURRENT_TIMESTAMP' : 'updated_at = CURRENT_TIMESTAMP';
     
     await db.run(`
       UPDATE purchase_invoices 
@@ -239,8 +239,8 @@ router.put('/:id/status', async (req, res) => {
       WHERE id = ?
     `, [status, remarks || null, req.params.id]);
 
-    // Send email notification if approved
-    if (status === 'Approved') {
+    // Send email notification if accepted
+    if (status === 'Accepted') {
       try {
         const invoice = await db.get(`
           SELECT i.invoice_number, v.email, v.company_name, v.contact_person 
@@ -255,8 +255,8 @@ router.put('/:id/status', async (req, res) => {
             await transporter.sendMail({
               from: `"${process.env.FROM_NAME || 'Nexus Procurement'}" <${process.env.SMTP_USER}>`,
               to: invoice.email,
-              subject: "Invoice Approved",
-              text: `Dear ${invoice.contact_person || 'Vendor'},\n\nYour Invoice ${invoice.invoice_number} has been approved.\n\nBest regards,\nNexus Procurement Team`,
+              subject: "Invoice Accepted",
+              text: `Dear ${invoice.contact_person || 'Vendor'},\n\nYour Invoice ${invoice.invoice_number} has been accepted.\n\nBest regards,\nNexus Procurement Team`,
             });
             console.log(`[Email] Approval email sent to ${invoice.email} for invoice ${invoice.invoice_number}`);
           }
@@ -291,8 +291,8 @@ router.put('/:id/pay', async (req, res) => {
     const db = await getDb();
     
     const invoice = await db.get('SELECT status, purchase_order_id FROM purchase_invoices WHERE id = ?', [req.params.id]);
-    if (!invoice || invoice.status !== 'Approved') {
-      return res.status(400).json({ error: 'Invoice must be Approved before payment' });
+    if (!invoice || invoice.status !== 'Accepted') {
+      return res.status(400).json({ error: 'Invoice must be Accepted before payment' });
     }
 
     await db.run('BEGIN TRANSACTION');

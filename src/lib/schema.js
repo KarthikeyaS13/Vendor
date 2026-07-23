@@ -21,8 +21,6 @@ export const step2Schema = z.object({
   cin: z.string()
     .trim()
     .toUpperCase()
-    .max(21, 'CIN must be at most 21 characters.')
-    .regex(/^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/, 'Please enter a valid CIN number.')
     .or(z.literal(''))
     .optional(),
   pan: z.string()
@@ -53,7 +51,6 @@ export const step2Schema = z.object({
     .optional(),
   labourRegistration: z.string()
     .trim()
-    .regex(/^[A-Za-z0-9\/]{5,30}$/, 'Invalid Labour License Number')
     .or(z.literal(''))
     .optional(),
   itFiling: z.string().min(1, 'IT Filing is required'),
@@ -71,15 +68,6 @@ export const step2Schema = z.object({
     }
   }
 
-  // CIN required for certain entity types
-  const requiresCin = ['Private Limited', 'Public Limited', 'OPC'].includes(data.entityType);
-  if (requiresCin && (!data.cin || data.cin.trim() === '')) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: 'Please enter a valid CIN number.',
-      path: ['cin']
-    });
-  }
 });
 
 export const step3Schema = z.object({

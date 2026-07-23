@@ -21,9 +21,6 @@ const navItems = [
   { name: 'Settings', path: '/portal/settings', icon: Settings },
 ];
 
-const secondaryNavItems = [
-  { name: 'Help Center', path: '/portal/help', icon: HelpCircle },
-];
 
 export default function PortalSidebar() {
   return (
@@ -60,24 +57,6 @@ export default function PortalSidebar() {
         ))}
       </nav>
 
-      {/* Secondary Navigation */}
-      <div className="p-4 border-t border-slate-200 space-y-1">
-        {secondaryNavItems.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.path}
-            className={({ isActive }) => cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
-              isActive 
-                ? "bg-blue-50 text-blue-600 font-medium" 
-                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-            )}
-          >
-            <item.icon className="w-5 h-5" />
-            {item.name}
-          </NavLink>
-        ))}
-      </div>
     </aside>
   );
 }

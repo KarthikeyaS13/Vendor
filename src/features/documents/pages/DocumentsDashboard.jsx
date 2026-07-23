@@ -24,7 +24,7 @@ export default function DocumentsDashboard() {
           </div>
           <h2 className="text-2xl font-semibold text-surface-on mb-2">Vendors</h2>
           <p className="text-surface-on-variant">
-            Browse onboarding documents, registrations, and certifications for all approved vendors.
+            Browse onboarding documents, registrations, and certifications for all accepted vendors.
           </p>
         </div>
 

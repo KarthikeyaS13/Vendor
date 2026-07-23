@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, XCircle } from 'lucide-react';
 
-const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, onReject }) => {
+const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onAccept, onReject }) => {
   const [activeTab, setActiveTab] = useState('Invitation Details');
 
   if (!isOpen) return null;
@@ -21,7 +21,7 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
       case 'SUBMITTED':
       case 'IN_REVIEW':
         return 'text-blue-600 bg-blue-100';
-      case 'APPROVED':
+      case 'ACCEPTED':
       case 'Completed':
         return 'text-emerald-600 bg-emerald-100';
       case 'REJECTED':
@@ -54,8 +54,8 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
             <div className="flex items-center gap-3">
               {application && application.status === 'SUBMITTED' && (
                 <>
-                  <button onClick={onApprove} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700">
-                    <CheckCircle className="w-4 h-4" /> Approve
+                  <button onClick={onAccept} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700">
+                    <CheckCircle className="w-4 h-4" /> Accept
                   </button>
                   <button onClick={onReject} className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 text-white text-sm font-medium rounded-md hover:bg-rose-700">
                     <XCircle className="w-4 h-4" /> Reject

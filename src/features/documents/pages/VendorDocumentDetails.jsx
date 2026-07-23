@@ -19,7 +19,7 @@ export default function VendorDocumentDetails() {
     try {
       const response = await fetch(`/api/documents/vendors/${id}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }
       });
       if (!response.ok) throw new Error('Failed to fetch documents');

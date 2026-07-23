@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  useReactTable, 
-  getCoreRowModel, 
-  flexRender, 
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
   getSortedRowModel,
   getFilteredRowModel,
   getPaginationRowModel
@@ -16,7 +16,7 @@ export default function Invitations() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  
+
   // Slide Over State
   const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
@@ -71,7 +71,7 @@ export default function Invitations() {
       Cancelled: 'bg-slate-100 text-slate-700 border-slate-200',
       SUBMITTED: 'bg-indigo-100 text-indigo-700 border-indigo-200',
       IN_REVIEW: 'bg-blue-100 text-blue-700 border-blue-200',
-      APPROVED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      ACCEPTED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       REJECTED: 'bg-rose-100 text-rose-700 border-rose-200'
     };
     const style = styles[status] || 'bg-slate-100 text-slate-700 border-slate-200';
@@ -89,8 +89,7 @@ export default function Invitations() {
         header: 'Company / Name',
         cell: info => (
           <div>
-            <div className="font-medium text-slate-900">{info.getValue()}</div>
-            <div className="text-slate-500 text-xs mt-0.5">{info.row.original.invitationId}</div>
+            <div className="font-semibold text-slate-900">{info.getValue()}</div>
           </div>
         ),
       },
@@ -120,8 +119,8 @@ export default function Invitations() {
         cell: info => (
           <div className="flex items-center gap-2 w-full max-w-[100px]">
             <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-              <div 
-                className={`h-full ${info.getValue() === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} 
+              <div
+                className={`h-full ${info.getValue() === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`}
                 style={{ width: `${info.getValue()}%` }}
               ></div>
             </div>
@@ -134,14 +133,14 @@ export default function Invitations() {
         header: () => <div className="text-right">Actions</div>,
         cell: ({ row }) => (
           <div className="flex items-center justify-end gap-2">
-            <button 
+            <button
               onClick={(e) => copyLink(e, row.original.token)} // token might not be in the query unless we joined it. Wait, I didn't select token in backend!
               className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
               title="Copy Link"
             >
               <Copy className="w-4 h-4" />
             </button>
-            <button 
+            <button
               onClick={() => openSlideOver(row)}
               className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
               title="View Details"
@@ -170,7 +169,7 @@ export default function Invitations() {
 
   const updateApplicationStatus = async (status) => {
     if (!selectedApplication?.invitation?.id) return;
-    
+
     try {
       const response = await fetch(`/api/applications/${selectedApplication.invitation.id}/status`, {
         method: 'PUT',
@@ -179,9 +178,9 @@ export default function Invitations() {
         },
         body: JSON.stringify({ status }),
       });
-      
+
       if (!response.ok) throw new Error('Failed to update status');
-      
+
       toast.success(`Application ${status.toLowerCase()} successfully!`);
       setIsSlideOverOpen(false);
       loadData(); // Refresh the table
@@ -194,9 +193,9 @@ export default function Invitations() {
   return (
     <div className="space-y-4">
 
-      
+
       {/* ... header ... */}
-      
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
@@ -204,14 +203,14 @@ export default function Invitations() {
           <p className="text-slate-500 mt-1 text-sm">Manage invitations and vendor applications across the lifecycle.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={() => loadData()}
             className="p-2 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 transition-colors"
             title="Refresh list"
           >
             <RefreshCw className="w-5 h-5" />
           </button>
-          <button 
+          <button
             onClick={() => setIsInviteModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 shadow-sm shadow-blue-600/20 transition-all"
           >
@@ -225,11 +224,11 @@ export default function Invitations() {
       <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 flex flex-wrap gap-4">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <input 
+          <input
             value={globalFilter ?? ''}
             onChange={e => setGlobalFilter(e.target.value)}
-            type="text" 
-            placeholder="Search by company or email..." 
+            type="text"
+            placeholder="Search by company or email..."
             className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
           />
         </div>
@@ -243,8 +242,8 @@ export default function Invitations() {
               {table.getHeaderGroups().map(headerGroup => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map(header => (
-                    <th 
-                      key={header.id} 
+                    <th
+                      key={header.id}
                       className={`px-3 py-2 font-semibold text-slate-700 ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
@@ -282,8 +281,8 @@ export default function Invitations() {
                 </tr>
               ) : (
                 table.getRowModel().rows.map(row => (
-                  <tr 
-                    key={row.id} 
+                  <tr
+                    key={row.id}
                     className="hover:bg-slate-50/80 transition-colors cursor-pointer"
                     onClick={() => openSlideOver(row)}
                   >
@@ -298,7 +297,7 @@ export default function Invitations() {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination */}
         <div className="px-4 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="text-sm text-slate-500">
@@ -323,9 +322,9 @@ export default function Invitations() {
         </div>
       </div>
 
-      <InviteVendorModal 
-        isOpen={isInviteModalOpen} 
-        onClose={() => setIsInviteModalOpen(false)} 
+      <InviteVendorModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
         onSuccess={loadData}
       />
 
@@ -333,7 +332,7 @@ export default function Invitations() {
         isOpen={isSlideOverOpen}
         onClose={() => setIsSlideOverOpen(false)}
         applicationData={selectedApplication}
-        onApprove={() => updateApplicationStatus('APPROVED')}
+        onAccept={() => updateApplicationStatus('ACCEPTED')}
         onReject={() => updateApplicationStatus('REJECTED')}
       />
     </div>

@@ -11,7 +11,7 @@ export default function VendorInvoiceList() {
     try {
       const response = await fetch('/api/invoices', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }
       });
       const data = await response.json();
@@ -35,7 +35,7 @@ export default function VendorInvoiceList() {
   const getStatusStyle = (status) => {
     switch (status) {
       case 'Submitted': return { color: 'text-blue-700', bg: 'bg-blue-100', border: 'border-blue-200', icon: Clock };
-      case 'Approved': return { color: 'text-emerald-700', bg: 'bg-emerald-100', border: 'border-emerald-200', icon: CheckCircle2 };
+      case 'Accepted': return { color: 'text-emerald-700', bg: 'bg-emerald-100', border: 'border-emerald-200', icon: CheckCircle2 };
       case 'Rejected': return { color: 'text-red-700', bg: 'bg-red-100', border: 'border-red-200', icon: XCircle };
       case 'Clarification_Requested': return { color: 'text-amber-700', bg: 'bg-amber-100', border: 'border-amber-200', icon: Clock };
       case 'Paid': return { color: 'text-purple-700', bg: 'bg-purple-100', border: 'border-purple-200', icon: CheckCircle2 };
@@ -103,7 +103,7 @@ export default function VendorInvoiceList() {
                   <td colSpan="6" className="px-6 py-12 text-center">
                     <Receipt className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                     <p className="text-slate-500 text-base">No invoices found.</p>
-                    <p className="text-slate-400 text-sm mt-1">Submit an invoice from an Approved Purchase Order.</p>
+                    <p className="text-slate-400 text-sm mt-1">Submit an invoice from an Accepted Purchase Order.</p>
                   </td>
                 </tr>
               ) : (

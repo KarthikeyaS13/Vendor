@@ -93,6 +93,34 @@ export const getDb = async () => {
     // Column might already exist, ignore
   }
 
+  // Add system_options table
+  try {
+    await dbInstance.run(`
+      CREATE TABLE IF NOT EXISTS system_options (
+        id SERIAL PRIMARY KEY,
+        category VARCHAR(50) NOT NULL,
+        value VARCHAR(255) NOT NULL,
+        UNIQUE(category, value)
+      )
+    `);
+    
+    // Seed default options if empty
+    const res = await dbInstance.all(`SELECT count(*) as count FROM system_options`);
+    if (res && res[0] && parseInt(res[0].count) === 0) {
+      const defaultTypes = ["Manufacturer", "Distributor", "Service Provider", "Retailer", "Consultant"];
+      const defaultCategories = ["IT Services", "Office Supplies", "Logistics", "Raw Materials", "Marketing"];
+      
+      for (const type of defaultTypes) {
+        await dbInstance.run(`INSERT INTO system_options (category, value) VALUES ('vendorType', $1)`, [type]);
+      }
+      for (const cat of defaultCategories) {
+        await dbInstance.run(`INSERT INTO system_options (category, value) VALUES ('vendorCategory', $1)`, [cat]);
+      }
+    }
+  } catch (e) {
+    console.error('Migration error for system_options:', e);
+  }
+
   return dbInstance;
 };
 

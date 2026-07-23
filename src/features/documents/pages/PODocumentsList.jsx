@@ -17,7 +17,7 @@ export default function PODocumentsList() {
     try {
       const response = await fetch('/api/documents/purchase-orders', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }
       });
       if (!response.ok) throw new Error('Failed to fetch purchase orders');
@@ -111,7 +111,7 @@ export default function PODocumentsList() {
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         po.status === 'Draft' ? 'bg-gray-100 text-gray-800' : 
                         po.status === 'Issued' ? 'bg-blue-100 text-blue-800' :
-                        po.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                        po.status === 'Accepted' ? 'bg-green-100 text-green-800' :
                         'bg-yellow-100 text-yellow-800'
                       }`}>
                         {po.status}

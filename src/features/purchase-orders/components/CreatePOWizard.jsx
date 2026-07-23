@@ -3,12 +3,11 @@ import { ArrowLeft, ArrowRight, Save, X, Building2, FileText, Users, MapPin, Che
 import { toast } from 'react-hot-toast';
 
 const steps = [
-  { id: 1, title: 'Company Details', icon: Building2 },
-  { id: 2, title: 'PO Details', icon: FileText },
-  { id: 3, title: 'Vendor Selection', icon: Users },
-  { id: 4, title: 'Delivery Location', icon: MapPin },
-  { id: 5, title: 'PO Item Details', icon: List },
-  { id: 6, title: 'Terms & Review', icon: FileSignature },
+  { id: 1, title: 'PO Details', icon: FileText },
+  { id: 2, title: 'Vendor Selection', icon: Users },
+  { id: 3, title: 'Delivery Location', icon: MapPin },
+  { id: 4, title: 'PO Item Details', icon: List },
+  { id: 5, title: 'Terms & Review', icon: FileSignature },
 ];
 
 export default function CreatePOWizard({ onClose }) {
@@ -19,10 +18,10 @@ export default function CreatePOWizard({ onClose }) {
 
   const [formData, setFormData] = useState({
     id: null,
-    // Step 1: Company Details
-    company_name: '',
-    company_address: '',
-    company_gstin: '',
+    // Auto-populated Company Details
+    company_name: localStorage.getItem('brandName') || '',
+    company_address: localStorage.getItem('companyAddress') || '',
+    company_gstin: localStorage.getItem('companyGst') || '',
     
     // Step 2: PO Details
     po_number: 'Draft - Auto Generated',
@@ -59,13 +58,13 @@ export default function CreatePOWizard({ onClose }) {
   });
 
   useEffect(() => {
-    // Fetch approved vendors
+    // Fetch accepted vendors
     const fetchVendors = async () => {
       try {
         const response = await fetch('/api/vendors');
         const data = await response.json();
-        // Filter for active/approved vendors
-        const activeVendors = data.filter(v => v.status === 'Active' || v.status === 'Approved');
+        // Filter for active/accepted vendors
+        const activeVendors = data.filter(v => v.status === 'Active' || v.status === 'Accepted');
         setVendors(activeVendors);
       } catch (error) {
         console.error('Error fetching vendors:', error);
@@ -167,14 +166,10 @@ export default function CreatePOWizard({ onClose }) {
     let isValid = true;
 
     if (step === 1) {
-      if (!formData.company_name) { newErrors.company_name = 'Company Name is required'; isValid = false; }
-      if (!formData.company_address) { newErrors.company_address = 'Company Address is required'; isValid = false; }
-      if (!formData.company_gstin) { newErrors.company_gstin = 'GSTIN is required'; isValid = false; }
-    } else if (step === 2) {
       if (!formData.po_date) { newErrors.po_date = 'PO Date is required'; isValid = false; }
-    } else if (step === 3) {
+    } else if (step === 2) {
       if (!formData.vendor_id) { newErrors.vendor_id = 'Please select a vendor'; isValid = false; }
-    } else if (step === 4) {
+    } else if (step === 3) {
       if (!formData.delivery_same_as_company) {
         if (!formData.delivery_address) { newErrors.delivery_address = 'Address is required'; isValid = false; }
         if (!formData.delivery_city) { newErrors.delivery_city = 'City is required'; isValid = false; }
@@ -183,7 +178,7 @@ export default function CreatePOWizard({ onClose }) {
         if (!formData.delivery_contact_person) { newErrors.delivery_contact_person = 'Contact Person is required'; isValid = false; }
         if (!formData.delivery_phone) { newErrors.delivery_phone = 'Phone Number is required'; isValid = false; }
       }
-    } else if (step === 5) {
+    } else if (step === 4) {
       let hasItemError = false;
       formData.items.forEach((item, index) => {
         if (item.particulars || item.quantity || item.rate) {
@@ -236,7 +231,7 @@ export default function CreatePOWizard({ onClose }) {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         },
         body: JSON.stringify({ ...formData, status })
       });
@@ -271,7 +266,7 @@ export default function CreatePOWizard({ onClose }) {
 
   const handleGeneratePO = async () => {
     if (validateStep(currentStep)) {
-      const success = await savePO('Approved');
+      const success = await savePO('Accepted');
       if (success) {
         toast.success('Purchase Order generated successfully!');
         onClose(true);
@@ -347,56 +342,8 @@ export default function CreatePOWizard({ onClose }) {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 p-8">
           
-          {/* STEP 1: COMPANY DETAILS */}
+          {/* STEP 1: PO DETAILS */}
           {currentStep === 1 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-              <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Company Details</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Company Name *</label>
-                  <input
-                    type="text"
-                    name="company_name"
-                    value={formData.company_name}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.company_name ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300'}`}
-                    placeholder="Enter your company name"
-                  />
-                  {errors.company_name && <p className="mt-1 text-sm text-red-600">{errors.company_name}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Company Address *</label>
-                  <textarea
-                    name="company_address"
-                    value={formData.company_address}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.company_address ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300'}`}
-                    placeholder="Enter full company address"
-                  />
-                  {errors.company_address && <p className="mt-1 text-sm text-red-600">{errors.company_address}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">GSTIN *</label>
-                  <input
-                    type="text"
-                    name="company_gstin"
-                    value={formData.company_gstin}
-                    onChange={handleInputChange}
-                    className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none ${errors.company_gstin ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-slate-300'}`}
-                    placeholder="Enter GSTIN"
-                  />
-                  {errors.company_gstin && <p className="mt-1 text-sm text-red-600">{errors.company_gstin}</p>}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: PO DETAILS */}
-          {currentStep === 2 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Purchase Order Details</h3>
               
@@ -428,10 +375,10 @@ export default function CreatePOWizard({ onClose }) {
             </div>
           )}
 
-          {/* STEP 3: VENDOR SELECTION */}
-          {currentStep === 3 && (
+          {/* STEP 2: VENDOR SELECTION */}
+          {currentStep === 2 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-              <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Select Approved Vendor</h3>
+              <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Select Accepted Vendor</h3>
               
               <div className="space-y-6">
                 <div>
@@ -477,8 +424,8 @@ export default function CreatePOWizard({ onClose }) {
             </div>
           )}
 
-          {/* STEP 4: DELIVERY LOCATION */}
-          {currentStep === 4 && (
+          {/* STEP 3: DELIVERY LOCATION */}
+          {currentStep === 3 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Delivery Location</h3>
               
@@ -507,7 +454,7 @@ export default function CreatePOWizard({ onClose }) {
                       rows={3}
                       className="w-full px-4 py-2 border border-slate-200 bg-slate-50 text-slate-600 rounded-md cursor-not-allowed"
                     />
-                    <p className="text-xs text-slate-500">Using company address from Step 1.</p>
+                    <p className="text-xs text-slate-500">Using company address from Settings.</p>
                   </div>
                 ) : (
                   <div className="space-y-4 pt-4 border-t border-slate-100">
@@ -589,8 +536,8 @@ export default function CreatePOWizard({ onClose }) {
             </div>
           )}
 
-          {/* STEP 5: PO ITEM DETAILS */}
-          {currentStep === 5 && (
+          {/* STEP 4: PO ITEM DETAILS */}
+          {currentStep === 4 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">PO Item Details</h3>
               
@@ -687,8 +634,8 @@ export default function CreatePOWizard({ onClose }) {
             </div>
           )}
 
-          {/* STEP 6: TERMS & CONDITIONS & REVIEW */}
-          {currentStep === 6 && (
+          {/* STEP 5: TERMS & CONDITIONS & REVIEW */}
+          {currentStep === 5 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Terms & Conditions</h3>
               

@@ -31,7 +31,7 @@ export async function apiClient(endpoint, options = {}) {
   };
 
   // Add auth tokens here when authentication is implemented
-  // headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+  // headers['Authorization'] = `Bearer ${sessionStorage.getItem('token')}`;
 
   const config = {
     ...options,

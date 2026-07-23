@@ -257,7 +257,7 @@ export default function VendorList() {
                     <p className="text-slate-500 text-sm mt-1 max-w-sm mx-auto">
                       {globalFilter || statusFilter !== 'All' 
                         ? 'Try adjusting your filters or search terms to find what you are looking for.' 
-                        : 'Your vendor master is empty. Approve pending applications to add vendors here.'}
+                        : 'Your vendor master is empty. Accept pending applications to add vendors here.'}
                     </p>
                   </td>
                 </tr>
