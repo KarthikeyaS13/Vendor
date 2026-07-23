@@ -28,6 +28,10 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Company Name and Email are required.' });
   }
 
+  if (mobile && !/^\d{10}$/.test(mobile)) {
+    return res.status(400).json({ error: 'Mobile number must be exactly 10 digits.' });
+  }
+
   const token = uuidv4();
   const invitationId = 'INV-' + Date.now();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();

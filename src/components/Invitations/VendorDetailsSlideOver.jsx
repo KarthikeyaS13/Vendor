@@ -13,8 +13,7 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
     'Company Details',
     'Tax Details',
     'Bank Details',
-    'Documents',
-    'History'
+    'Documents'
   ];
 
   const getStatusColor = (status) => {
@@ -160,10 +159,6 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
                     <p className="mt-1 text-slate-900 font-medium">{new Date(company?.date_of_incorporation).toLocaleDateString()}</p>
                   </div>
                   <div className="col-span-2">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Website</label>
-                    <p className="mt-1 text-blue-600 font-medium hover:underline cursor-pointer">{company?.website || 'N/A'}</p>
-                  </div>
-                  <div className="col-span-2">
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Address</label>
                     <p className="mt-1 text-slate-900 font-medium">
                       {company?.address || 'N/A'}, {company?.city || 'N/A'}, {company?.state || 'N/A'}
@@ -196,14 +191,6 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
                   <div>
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Industry Category</label>
                     <p className="mt-1 text-slate-900 font-medium">{business?.industry_category}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Service Regions</label>
-                    <p className="mt-1 text-slate-900 font-medium">{business?.service_regions || 'N/A'}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Primary Products/Services</label>
-                    <p className="mt-1 text-slate-900 font-medium">{business?.primary_products || 'N/A'}</p>
                   </div>
                   <div>
                     <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Vendor Type</label>
@@ -266,14 +253,6 @@ const VendorDetailsSlideOver = ({ isOpen, onClose, applicationData, onApprove, o
                     <p className="mt-1 text-slate-900 font-medium">{financial?.currency}</p>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {activeTab === 'History' && (
-              <div className="bg-white p-6 rounded-xl border border-slate-200">
-                 <div className="text-center py-12 text-slate-500">
-                    <p>Audit history will be displayed here.</p>
-                 </div>
               </div>
             )}
 

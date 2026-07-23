@@ -155,7 +155,7 @@ const Step3BankDetails = () => {
           <ArrowLeft className="mr-2 w-4 h-4" /> Previous
         </button>
         <div className="flex items-center gap-4">
-          <button type="button" onClick={() => { updateFormData(getValues()); nextStep(); }} className="px-6 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-700/20 transition-all flex items-center">
+          <button type="submit" className="px-6 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-700/20 transition-all flex items-center">
             Next Step <ArrowRight className="ml-2 w-4 h-4" />
           </button>
         </div>

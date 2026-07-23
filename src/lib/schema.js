@@ -7,11 +7,11 @@ export const step1Schema = z.object({
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
   country: z.string().min(1, 'Country is required'),
-  pinCode: z.string().min(6, 'Valid PIN is required'),
+  pinCode: z.string().regex(/^\d{6}$/, 'PIN code must be exactly 6 digits'),
   email1: z.string().email('Invalid email'),
   email2: z.string().email('Invalid email').optional().or(z.literal('')),
   contactPerson: z.string().min(1, 'Contact Person is required'),
-  contactPhone: z.string().min(10, 'Valid mobile is required'),
+  contactPhone: z.string().regex(/^\d{10}$/, 'Mobile number must be exactly 10 digits'),
 });
 
 export const step2Schema = z.object({

@@ -244,10 +244,7 @@ export default function VendorProfile() {
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Date of Incorporation</label>
                   <p className="mt-1 text-slate-900 font-medium">{company?.date_of_incorporation ? new Date(company.date_of_incorporation).toLocaleDateString() : 'N/A'}</p>
                 </div>
-                <div className="col-span-2">
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Website</label>
-                  <p className="mt-1 text-blue-600 font-medium hover:underline cursor-pointer">{company?.website || 'N/A'}</p>
-                </div>
+
                 <div className="col-span-2">
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Address</label>
                   <p className="mt-1 text-slate-900 font-medium">
@@ -279,10 +276,7 @@ export default function VendorProfile() {
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Industry Category</label>
                   <p className="mt-1 text-slate-900 font-medium">{business?.industry_category || 'N/A'}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Primary Products</label>
-                  <p className="mt-1 text-slate-900 font-medium">{business?.primary_products || 'N/A'}</p>
-                </div>
+
                 <div>
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">GST Number</label>
                   <p className="mt-1 text-slate-900 font-medium">{business?.gst_number || vendor.gst_number || 'N/A'}</p>
