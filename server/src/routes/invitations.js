@@ -44,7 +44,10 @@ router.post('/', async (req, res) => {
       [invitationId, companyName, contactPerson, email, mobile || null, token, tempPassword, expiresAt]
     );
 
-    const registrationUrl = `http://localhost:5173/vendor-login?token=${token}`;
+    const host = req.get('host');
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || `${protocol}://${host}`;
+    const registrationUrl = `${frontendUrl}/vendor-login?token=${token}`;
 
     console.log(`[Email System] Sending invitation email to ${email}. Link: ${registrationUrl}`);
     

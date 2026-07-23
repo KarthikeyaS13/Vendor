@@ -217,7 +217,7 @@ router.post('/', upload.single('invoice_file'), async (req, res) => {
 // PUT /api/invoices/:id/status
 router.put('/:id/status', async (req, res) => {
   // Only Admin can change status like this
-  if (req.user.role !== 'admin') {
+  if (req.user.role !== 'admin' && req.user.role !== 'ADMIN') {
     return res.status(403).json({ error: 'Forbidden: Admin access required' });
   }
 
@@ -275,7 +275,7 @@ router.put('/:id/status', async (req, res) => {
 // PUT /api/invoices/:id/pay
 router.put('/:id/pay', async (req, res) => {
   // Only Admin can mark as paid
-  if (req.user.role !== 'admin') {
+  if (req.user.role !== 'admin' && req.user.role !== 'ADMIN') {
     return res.status(403).json({ error: 'Forbidden: Admin access required' });
   }
 

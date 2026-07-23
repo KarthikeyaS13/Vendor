@@ -196,6 +196,9 @@ router.put('/:id/status', async (req, res) => {
             true,
             true
           ]);
+          const host = req.get('host');
+          const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+          const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || `${protocol}://${host}`;
 
           // Mock Welcome Email
           console.log(`
@@ -215,7 +218,7 @@ Temporary Password
 ${tempPassword}
 
 Portal URL
-http://localhost:5173/portal-login
+${frontendUrl}/portal-login
 
 Please login and change your password immediately.
 --------------------------------------------------
