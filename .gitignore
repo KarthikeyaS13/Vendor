@@ -19,6 +19,12 @@ out/
 .env.production.local
 
 # Database & Local Data
+# Database & Local Data
+server/*.sqlite
+server/*.sqlite-*
+server/*.sqlite.bak
+server/*.bak
+server/*.db
 server/database/*.sqlite
 server/database/*.sqlite-*
 server/database/*.sqlite.bak

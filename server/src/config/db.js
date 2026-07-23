@@ -6,11 +6,11 @@ dotenv.config();
 let dbInstance = null;
 
 const pool = new Pool({
-  user: 'vendor_user',
-  host: process.env.PG_HOST || '165.22.211.231', // Using the specified server IP
-  database: 'vendor_db',
-  password: 'kalyan013',
-  port: 5432,
+  user: process.env.PG_USER || 'vendor_user',
+  host: process.env.PG_HOST || 'localhost', 
+  database: process.env.PG_DATABASE || 'vendor_db',
+  password: process.env.PG_PASSWORD || 'kalyan013',
+  port: process.env.PG_PORT || 5432,
 });
 
 // Helper to convert SQLite `?` to PostgreSQL `$1, $2` etc.
