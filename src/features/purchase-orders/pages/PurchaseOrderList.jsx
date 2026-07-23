@@ -17,9 +17,15 @@ export default function PurchaseOrderList() {
         }
       });
       const data = await response.json();
-      setPurchaseOrders(data);
+      if (Array.isArray(data)) {
+        setPurchaseOrders(data);
+      } else {
+        console.error('Failed to fetch purchase orders:', data.error || data);
+        setPurchaseOrders([]);
+      }
     } catch (error) {
       console.error('Error fetching purchase orders:', error);
+      setPurchaseOrders([]);
     } finally {
       setLoading(false);
     }
