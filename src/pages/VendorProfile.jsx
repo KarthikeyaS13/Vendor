@@ -244,6 +244,28 @@ export default function VendorProfile() {
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Date of Incorporation</label>
                   <p className="mt-1 text-slate-900 font-medium">{company?.date_of_incorporation ? new Date(company.date_of_incorporation).toLocaleDateString() : 'N/A'}</p>
                 </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Website</label>
+                  <p className="mt-1 text-blue-600 font-medium hover:underline cursor-pointer">{company?.website || 'N/A'}</p>
+                </div>
+                <div className="col-span-2">
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Address</label>
+                  <p className="mt-1 text-slate-900 font-medium">
+                    {company?.address ? `${company.address}, ${company.city || ''}, ${company.state || ''}` : 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Contact Person</label>
+                  <p className="mt-1 text-slate-900 font-medium">{company?.contact_person || vendor.contact_person || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</label>
+                  <p className="mt-1 text-slate-900 font-medium">{company?.email || vendor.email || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mobile Number</label>
+                  <p className="mt-1 text-slate-900 font-medium">{vendor.mobile || 'N/A'}</p>
+                </div>
               </div>
             )}
           </div>

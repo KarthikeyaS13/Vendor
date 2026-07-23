@@ -8,6 +8,7 @@ export default function InviteVendorModal({ isOpen, onClose, onSuccess }) {
     companyName: '',
     contactPerson: '',
     email: '',
+    mobile: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -29,7 +30,7 @@ export default function InviteVendorModal({ isOpen, onClose, onSuccess }) {
       }
       if (onSuccess) onSuccess();
       onClose();
-      setFormData({ companyName: '', email: '' });
+      setFormData({ companyName: '', contactPerson: '', email: '', mobile: '' });
     } catch (err) {
       toast.error(err.message || 'Failed to send invitation');
     } finally {
@@ -102,6 +103,22 @@ export default function InviteVendorModal({ isOpen, onClose, onSuccess }) {
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
                 />
                 <p className="text-[11px] text-slate-500 mt-1">Invitation link and login credentials will be sent to this address.</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 pb-2">
+              <label className="text-sm font-medium text-slate-700">
+                Mobile Number
+              </label>
+              <div>
+                <input
+                  type="tel"
+                  className="w-full rounded border border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
+                  value={formData.mobile}
+                  onChange={e => setFormData({ ...formData, mobile: e.target.value })}
+                  placeholder="e.g. 9876543210"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">Vendor's contact number (optional).</p>
               </div>
             </div>
 
