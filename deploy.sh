@@ -54,7 +54,7 @@ echo "🌐 Configuring Nginx..."
 cat <<EOF > /etc/nginx/sites-available/vendor-management
 server {
     listen 80;
-    server_name 165.22.211.231; # Replace with domain later if needed
+    server_name app.finnovo.io;
     
     # Allow large file uploads
     client_max_body_size 50M;
@@ -109,6 +109,6 @@ fi
 
 echo "=============================================================================="
 echo "🎉 DEPLOYMENT COMPLETE! 🎉"
-echo "Your application should now be live at http://165.22.211.231"
+echo "Your application should now be live at https://app.finnovo.io"
 echo "If you still see a 500 error, run: sudo tail -50 /var/log/nginx/error.log"
 echo "=============================================================================="
