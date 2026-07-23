@@ -55,6 +55,9 @@ cat <<EOF > /etc/nginx/sites-available/vendor-management
 server {
     listen 80;
     server_name 165.22.211.231; # Replace with domain later if needed
+    
+    # Allow large file uploads
+    client_max_body_size 50M;
 
     # Serve Frontend Static Files
     root $PROJECT_DIR/dist;
