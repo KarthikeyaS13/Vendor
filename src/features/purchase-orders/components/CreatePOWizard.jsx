@@ -58,6 +58,14 @@ export default function CreatePOWizard({ onClose }) {
   });
 
   useEffect(() => {
+    // Ensure we fetch the latest settings when the wizard opens
+    setFormData(prev => ({
+      ...prev,
+      company_name: localStorage.getItem('brandName') || 'Finnovo',
+      company_address: localStorage.getItem('companyAddress') || '123 Business Avenue, Tech District',
+      company_gstin: localStorage.getItem('companyGst') || '',
+    }));
+
     // Fetch accepted vendors
     const fetchVendors = async () => {
       try {
