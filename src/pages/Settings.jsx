@@ -42,7 +42,6 @@ export default function Settings() {
     smtpPort: '',
     smtpUser: '',
     smtpPass: '',
-    smtpPass: '',
     fromName: ''
   });
 

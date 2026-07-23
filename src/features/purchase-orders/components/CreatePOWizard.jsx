@@ -19,21 +19,21 @@ export default function CreatePOWizard({ onClose }) {
   const [formData, setFormData] = useState({
     id: null,
     // Auto-populated Company Details
-    company_name: localStorage.getItem('brandName') || '',
-    company_address: localStorage.getItem('companyAddress') || '',
+    company_name: localStorage.getItem('brandName') || 'Finnovo',
+    company_address: localStorage.getItem('companyAddress') || 'Madhapur Bhanu Elite Hitech City Hyderabad',
     company_gstin: localStorage.getItem('companyGst') || '',
-    
+
     // Step 2: PO Details
     po_number: 'Draft - Auto Generated',
     po_date: new Date().toISOString().split('T')[0],
-    
+
     // Step 3: Vendor Selection
     vendor_id: '',
     vendor_name: '',
     vendor_address: '',
     vendor_gstin: '',
     vendor_pan: '',
-    
+
     // Step 4: Delivery Location
     delivery_same_as_company: true,
     delivery_address: '',
@@ -88,7 +88,7 @@ export default function CreatePOWizard({ onClose }) {
   const handleVendorSelect = (e) => {
     const vendorId = e.target.value;
     const selectedVendor = vendors.find(v => v.id.toString() === vendorId);
-    
+
     if (selectedVendor) {
       const fullAddress = [selectedVendor.address, selectedVendor.city, selectedVendor.state]
         .filter(Boolean)
@@ -118,15 +118,15 @@ export default function CreatePOWizard({ onClose }) {
     setFormData(prev => {
       const newItems = [...prev.items];
       const item = { ...newItems[index], [field]: value };
-      
+
       if (field === 'quantity' || field === 'rate') {
         const qty = parseFloat(item.quantity) || 0;
         const rate = parseFloat(item.rate) || 0;
         item.value = qty * rate;
       }
-      
+
       newItems[index] = item;
-      
+
       const total_amount = newItems.reduce((sum, currentItem) => sum + (currentItem.value || 0), 0);
 
       return { ...prev, items: newItems, total_amount };
@@ -226,7 +226,7 @@ export default function CreatePOWizard({ onClose }) {
     try {
       const url = formData.id ? `/api/purchase-orders/${formData.id}` : '/api/purchase-orders';
       const method = formData.id ? 'PUT' : 'POST';
-      
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -235,13 +235,13 @@ export default function CreatePOWizard({ onClose }) {
         },
         body: JSON.stringify({ ...formData, status })
       });
-      
+
       const data = await res.json();
       if (!res.ok) {
         toast.error('Error saving PO: ' + (data.error || 'Unknown error'));
         return false;
       }
-      
+
       if (data.id && !formData.id) {
         setFormData(prev => ({ ...prev, id: data.id, po_number: data.po_number || prev.po_number }));
       }
@@ -257,10 +257,10 @@ export default function CreatePOWizard({ onClose }) {
 
   const handleSaveDraft = async () => {
     if (validateStep(currentStep)) {
-       const success = await savePO('Draft');
-       if (success) {
-         onClose(true); // Close and refresh list if needed
-       }
+      const success = await savePO('Draft');
+      if (success) {
+        onClose(true); // Close and refresh list if needed
+      }
     }
   };
 
@@ -279,7 +279,7 @@ export default function CreatePOWizard({ onClose }) {
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={() => onClose(false)}
             className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500"
           >
@@ -299,10 +299,10 @@ export default function CreatePOWizard({ onClose }) {
             {steps.map((step, index) => {
               const isCompleted = currentStep > step.id;
               const isCurrent = currentStep === step.id;
-              
+
               return (
-                <div 
-                  key={step.id} 
+                <div
+                  key={step.id}
                   className={`flex flex-col items-center relative z-10 ${isCompleted ? 'cursor-pointer group' : ''}`}
                   onClick={() => {
                     if (isCompleted) {
@@ -310,18 +310,17 @@ export default function CreatePOWizard({ onClose }) {
                     }
                   }}
                 >
-                  <div 
+                  <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200
-                      ${isCompleted ? 'bg-blue-600 text-white group-hover:bg-blue-700 group-hover:scale-105 shadow-sm' : 
-                        isCurrent ? 'bg-blue-100 text-blue-600 border-2 border-blue-600' : 
-                        'bg-slate-100 text-slate-400'}`}
+                      ${isCompleted ? 'bg-blue-600 text-white group-hover:bg-blue-700 group-hover:scale-105 shadow-sm' :
+                        isCurrent ? 'bg-blue-100 text-blue-600 border-2 border-blue-600' :
+                          'bg-slate-100 text-slate-400'}`}
                   >
                     {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <step.icon className="w-5 h-5" />}
                   </div>
-                  <span className={`mt-2 text-xs font-medium transition-colors ${
-                    isCurrent ? 'text-slate-900' : 
-                    isCompleted ? 'text-slate-700 group-hover:text-blue-700' : 'text-slate-400'
-                  }`}>
+                  <span className={`mt-2 text-xs font-medium transition-colors ${isCurrent ? 'text-slate-900' :
+                      isCompleted ? 'text-slate-700 group-hover:text-blue-700' : 'text-slate-400'
+                    }`}>
                     {step.title}
                   </span>
                 </div>
@@ -329,11 +328,11 @@ export default function CreatePOWizard({ onClose }) {
             })}
           </div>
           <div className="relative -mt-8 mb-8 z-0">
-             <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -translate-y-1/2"></div>
-             <div 
-                className="absolute top-1/2 left-0 h-0.5 bg-blue-600 -translate-y-1/2 transition-all duration-300"
-                style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
-             ></div>
+            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 -translate-y-1/2"></div>
+            <div
+              className="absolute top-1/2 left-0 h-0.5 bg-blue-600 -translate-y-1/2 transition-all duration-300"
+              style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+            ></div>
           </div>
         </div>
       </div>
@@ -341,12 +340,12 @@ export default function CreatePOWizard({ onClose }) {
       {/* Form Area */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-          
+
           {/* STEP 1: PO DETAILS */}
           {currentStep === 1 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Purchase Order Details</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">PO Number</label>
@@ -379,7 +378,7 @@ export default function CreatePOWizard({ onClose }) {
           {currentStep === 2 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Select Accepted Vendor</h3>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Vendor *</label>
@@ -401,22 +400,22 @@ export default function CreatePOWizard({ onClose }) {
                   <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-4">
                     <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Vendor Details</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       <div>
-                         <label className="block text-xs font-medium text-slate-500 mb-1">Vendor Name</label>
-                         <p className="text-sm text-slate-900 font-medium">{formData.vendor_name}</p>
-                       </div>
-                       <div>
-                         <label className="block text-xs font-medium text-slate-500 mb-1">GSTIN</label>
-                         <p className="text-sm text-slate-900">{formData.vendor_gstin || 'N/A'}</p>
-                       </div>
-                       <div>
-                         <label className="block text-xs font-medium text-slate-500 mb-1">PAN</label>
-                         <p className="text-sm text-slate-900">{formData.vendor_pan || 'N/A'}</p>
-                       </div>
-                       <div className="md:col-span-2">
-                         <label className="block text-xs font-medium text-slate-500 mb-1">Address</label>
-                         <p className="text-sm text-slate-900">{formData.vendor_address}</p>
-                       </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-1">Vendor Name</label>
+                        <p className="text-sm text-slate-900 font-medium">{formData.vendor_name}</p>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-1">GSTIN</label>
+                        <p className="text-sm text-slate-900">{formData.vendor_gstin || 'N/A'}</p>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-1">PAN</label>
+                        <p className="text-sm text-slate-900">{formData.vendor_pan || 'N/A'}</p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-slate-500 mb-1">Address</label>
+                        <p className="text-sm text-slate-900">{formData.vendor_address}</p>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -428,9 +427,9 @@ export default function CreatePOWizard({ onClose }) {
           {currentStep === 3 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Delivery Location</h3>
-              
+
               <div className="space-y-6">
-                
+
                 <div className="flex items-center gap-2 bg-slate-50 p-4 rounded-lg border border-slate-200">
                   <input
                     type="checkbox"
@@ -540,7 +539,7 @@ export default function CreatePOWizard({ onClose }) {
           {currentStep === 4 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">PO Item Details</h3>
-              
+
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
                   <thead className="bg-slate-50 text-slate-600 font-medium">
@@ -620,7 +619,7 @@ export default function CreatePOWizard({ onClose }) {
                   </tfoot>
                 </table>
               </div>
-              
+
               {errors.items && <p className="text-sm text-red-600 font-medium">{errors.items}</p>}
 
               <div>
@@ -638,7 +637,7 @@ export default function CreatePOWizard({ onClose }) {
           {currentStep === 5 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
               <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-4">Terms & Conditions</h3>
-              
+
               <div className="space-y-4">
                 <label className="block text-sm font-medium text-slate-700">Terms & Conditions (Payment, Delivery, Warranty, etc.)</label>
                 <textarea
@@ -657,21 +656,21 @@ export default function CreatePOWizard({ onClose }) {
                 <p>All materials supplied against this Purchase Order shall comply with the agreed specifications, quality standards and delivery schedule.</p>
                 <p>The supplier agrees to the terms and conditions mentioned above.</p>
                 <p className="font-medium text-slate-500 italic">This Purchase Order is electronically generated and does not require a physical signature unless specifically requested.</p>
-                
+
                 <div className="pt-8 flex justify-end">
-                   <div className="text-center">
-                      <div className="w-48 h-20 mb-2 flex items-center justify-center mx-auto">
-                        {localStorage.getItem('companySignature') ? (
-                           <img src={localStorage.getItem('companySignature')} alt="Authorized Signature" className="h-full object-contain mix-blend-multiply" />
-                        ) : (
-                           <div className="w-40 h-16 border-2 border-dashed border-slate-300 bg-white rounded flex items-center justify-center text-slate-400">
-                             <span className="text-xs">No Signature Uploaded</span>
-                           </div>
-                        )}
-                      </div>
-                      <p className="font-medium text-slate-800">For {formData.company_name || '<Company Name>'}</p>
-                      <p className="text-xs text-slate-500 mt-1">Authorized Signatory</p>
-                   </div>
+                  <div className="text-center">
+                    <div className="w-48 h-20 mb-2 flex items-center justify-center mx-auto">
+                      {localStorage.getItem('companySignature') ? (
+                        <img src={localStorage.getItem('companySignature')} alt="Authorized Signature" className="h-full object-contain mix-blend-multiply" />
+                      ) : (
+                        <div className="w-40 h-16 border-2 border-dashed border-slate-300 bg-white rounded flex items-center justify-center text-slate-400">
+                          <span className="text-xs">No Signature Uploaded</span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="font-medium text-slate-800">For {formData.company_name || '<Company Name>'}</p>
+                    <p className="text-xs text-slate-500 mt-1">Authorized Signatory</p>
+                  </div>
                 </div>
               </div>
 
@@ -719,14 +718,14 @@ export default function CreatePOWizard({ onClose }) {
           >
             Cancel
           </button>
-          
+
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrevious}
               disabled={currentStep === 1 || isSaving}
               className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium transition-colors
                 ${currentStep === 1 || isSaving
-                  ? 'text-slate-300 cursor-not-allowed' 
+                  ? 'text-slate-300 cursor-not-allowed'
                   : 'text-slate-700 hover:bg-slate-100 border border-slate-200'}`}
             >
               <ArrowLeft className="w-4 h-4" />
