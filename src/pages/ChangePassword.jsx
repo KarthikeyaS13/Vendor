@@ -23,9 +23,14 @@ export default function ChangePassword() {
     }
   }, [user, navigate]);
 
-  // If accessed directly without an email in state, redirect to login
+  React.useEffect(() => {
+    // If accessed directly without an email in state, redirect to login
+    if (!email && !user) {
+      navigate('/portal-login', { replace: true });
+    }
+  }, [email, user, navigate]);
+
   if (!email && !user) {
-    navigate('/portal-login', { replace: true });
     return null;
   }
 
