@@ -17,7 +17,7 @@ export default function PODocumentsList() {
     try {
       const response = await fetch('/api/documents/purchase-orders', {
         headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
       if (!response.ok) throw new Error('Failed to fetch purchase orders');

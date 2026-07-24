@@ -42,7 +42,7 @@ export default function InvoiceSubmissionWizard() {
     const fetchPO = async () => {
       try {
         const res = await fetch(`/api/purchase-orders/${state.poId}`, {
-          headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         const data = await res.json();
         setPo(data);
@@ -214,7 +214,7 @@ export default function InvoiceSubmissionWizard() {
       const res = await fetch('/api/invoices', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: data
       });

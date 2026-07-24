@@ -214,3 +214,5 @@ app.listen(PORT, async () => {
   await initDatabase();
   console.log(`Nexus API Server running on port ${PORT}`);
 });
+
+// Triggering restart for DB init

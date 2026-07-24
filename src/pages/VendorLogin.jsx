@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const VendorLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, login } = useAuth();
 
   const [emailState, setEmailState] = useState('');
   const [passwordState, setPasswordState] = useState('');
@@ -12,8 +14,14 @@ const VendorLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    // Optional: if we want to pre-fill email from query param if it existed, we could
-  }, []);
+    if (user) {
+      if (user.role === 'VENDOR') {
+        navigate('/portal/dashboard', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [user, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

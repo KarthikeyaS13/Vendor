@@ -8,7 +8,7 @@ export default function VendorInvoiceDetails({ invoiceId, onClose }) {
   const fetchInvoice = async () => {
     try {
       const res = await fetch(`/api/invoices/${invoiceId}`, {
-        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await res.json();
       setInvoice(data);

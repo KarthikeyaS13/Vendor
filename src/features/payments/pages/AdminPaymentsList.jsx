@@ -14,7 +14,7 @@ export default function AdminPaymentsList() {
     try {
       const res = await fetch('/api/invoices', {
         headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
       const data = await res.json();

@@ -14,7 +14,7 @@ export default function ViewPOModal({ poId, onClose }) {
       try {
         const res = await fetch(`/api/purchase-orders/${poId}`, {
           headers: {
-            'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         });
         const data = await res.json();

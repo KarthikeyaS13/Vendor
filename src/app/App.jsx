@@ -13,6 +13,7 @@ import ChangePassword from '../pages/ChangePassword'
 import Invitations from '../pages/Invitations'
 import Success from '../pages/Success'
 import Landing from '../pages/Landing'
+import ProtectedRoute from '../components/ProtectedRoute'
 
 import VendorList from '../pages/VendorList'
 import VendorProfile from '../pages/VendorProfile'
@@ -46,35 +47,39 @@ function App() {
         
         <Route path="/" element={<Landing />} />
         
-        <Route element={<AdminLayout />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="invitations" element={<Invitations />} />
-          <Route path="vendors" element={<VendorList />} />
-          <Route path="vendors/:id" element={<VendorProfile />} />
-          <Route path="applications" element={<div className="p-6">Applications Placeholder</div>} />
-          
-          <Route path="documents">
-            <Route index element={<DocumentsDashboard />} />
-            <Route path="vendors" element={<VendorDocumentsList />} />
-            <Route path="vendors/:id" element={<VendorDocumentDetails />} />
-            <Route path="purchase-orders" element={<PODocumentsList />} />
-            <Route path="purchase-orders/:id" element={<PODocumentDetails />} />
-          </Route>
+        <Route element={<ProtectedRoute allowedRoles={['admin', 'ADMIN', 'PROCUREMENT', 'FINANCE', 'COMPLIANCE', 'MANAGEMENT']} />}>
+          <Route element={<AdminLayout />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="invitations" element={<Invitations />} />
+            <Route path="vendors" element={<VendorList />} />
+            <Route path="vendors/:id" element={<VendorProfile />} />
+            <Route path="applications" element={<div className="p-6">Applications Placeholder</div>} />
+            
+            <Route path="documents">
+              <Route index element={<DocumentsDashboard />} />
+              <Route path="vendors" element={<VendorDocumentsList />} />
+              <Route path="vendors/:id" element={<VendorDocumentDetails />} />
+              <Route path="purchase-orders" element={<PODocumentsList />} />
+              <Route path="purchase-orders/:id" element={<PODocumentDetails />} />
+            </Route>
 
-          <Route path="purchase-orders" element={<PurchaseOrderList />} />
-          <Route path="invoices" element={<AdminInvoiceList />} />
-          <Route path="payments" element={<AdminPaymentsList />} />
-          <Route path="reports" element={<div className="p-6">Reports Placeholder</div>} />
-          <Route path="settings" element={<Settings />} />
+            <Route path="purchase-orders" element={<PurchaseOrderList />} />
+            <Route path="invoices" element={<AdminInvoiceList />} />
+            <Route path="payments" element={<AdminPaymentsList />} />
+            <Route path="reports" element={<div className="p-6">Reports Placeholder</div>} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
         </Route>
 
-        <Route path="/portal" element={<PortalLayout />}>
-          <Route index element={<VendorDashboard />} />
-          <Route path="dashboard" element={<VendorDashboard />} />
-          <Route path="purchase-orders" element={<PurchaseOrderList />} />
-          <Route path="invoices" element={<VendorInvoiceList />} />
-          <Route path="invoices/new" element={<InvoiceSubmissionWizard />} />
-          <Route path="settings" element={<Settings />} />
+        <Route element={<ProtectedRoute allowedRoles={['VENDOR']} />}>
+          <Route path="/portal" element={<PortalLayout />}>
+            <Route index element={<VendorDashboard />} />
+            <Route path="dashboard" element={<VendorDashboard />} />
+            <Route path="purchase-orders" element={<PurchaseOrderList />} />
+            <Route path="invoices" element={<VendorInvoiceList />} />
+            <Route path="invoices/new" element={<InvoiceSubmissionWizard />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
         </Route>
       </Routes>
       </AuthProvider>

@@ -13,7 +13,7 @@ export default function PurchaseOrderList() {
     try {
       const response = await fetch('/api/purchase-orders', {
         headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
       const data = await response.json();

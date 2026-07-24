@@ -11,7 +11,7 @@ export default function VendorInvoiceList() {
     try {
       const response = await fetch('/api/invoices', {
         headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
       const data = await response.json();

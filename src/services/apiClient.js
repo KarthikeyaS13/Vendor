@@ -31,7 +31,10 @@ export async function apiClient(endpoint, options = {}) {
   };
 
   // Add auth tokens here when authentication is implemented
-  // headers['Authorization'] = `Bearer ${sessionStorage.getItem('token')}`;
+  const token = localStorage.getItem('token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   const config = {
     ...options,
@@ -49,6 +52,9 @@ export async function apiClient(endpoint, options = {}) {
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
+      if (response.status === 401) {
+        window.dispatchEvent(new Event('unauthorized'));
+      }
       throw new ApiError(
         data?.message || response.statusText || 'An error occurred during the API request.',
         response.status,

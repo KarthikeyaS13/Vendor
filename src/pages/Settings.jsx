@@ -64,7 +64,7 @@ export default function Settings() {
   const fetchOptions = async () => {
     try {
       const res = await fetch('/api/settings/options', {
-        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (res.ok) {
         const data = await res.json();
@@ -84,7 +84,7 @@ export default function Settings() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify(newOption)
       });
@@ -104,7 +104,7 @@ export default function Settings() {
     try {
       const res = await fetch(`/api/settings/options/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (res.ok) {
         toast.success('Option deleted successfully');

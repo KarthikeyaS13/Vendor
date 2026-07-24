@@ -14,7 +14,7 @@ export default function AdminInvoiceDetails({ invoiceId, onClose }) {
   const fetchInvoice = async () => {
     try {
       const res = await fetch(`/api/invoices/${invoiceId}`, {
-        headers: { 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await res.json();
       setInvoice(data);
@@ -43,7 +43,7 @@ export default function AdminInvoiceDetails({ invoiceId, onClose }) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({ status, notes: actionNotes })
       });
