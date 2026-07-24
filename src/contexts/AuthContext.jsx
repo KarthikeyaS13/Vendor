@@ -10,13 +10,20 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
+        const isPortal = window.location.pathname.startsWith('/portal');
+        const tokenKey = isPortal ? 'token' : 'adminToken';
+        const userKey = isPortal ? 'user' : 'adminUser';
 
-    if (storedToken && storedUser) {
-      try {
-        // Decode JWT to check expiration
-        const base64Url = storedToken.split('.')[1];
+        // Fallback to shared token if specific one isn't found (for smooth transition)
+        const activeToken = localStorage.getItem(tokenKey) || localStorage.getItem('token');
+        const activeUser = localStorage.getItem(userKey) || localStorage.getItem('user');
+
+        if (!activeToken || !activeUser) {
+          setLoading(false);
+          return;
+        }
+
+        const base64Url = activeToken.split('.')[1];
         if (!base64Url) throw new Error('Invalid token format');
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const decoded = JSON.parse(window.atob(base64));
@@ -25,19 +32,10 @@ export function AuthProvider({ children }) {
           throw new Error('Token expired');
         }
 
-        const parsedUser = JSON.parse(storedUser);
+        const parsedUser = JSON.parse(activeUser);
         parsedUser.role = (parsedUser.role || '').toUpperCase();
 
-        // Enforce Portal Isolation
-        const path = window.location.pathname;
-        if (path === '/portal-login' && parsedUser.role !== 'VENDOR') {
-          throw new Error('Admin session not allowed on Vendor Login');
-        }
-        if (path === '/admin-login' && parsedUser.role === 'VENDOR') {
-          throw new Error('Vendor session not allowed on Admin Login');
-        }
-
-        setToken(storedToken);
+        setToken(activeToken);
         setUser(parsedUser);
       } catch (error) {
         console.error('Failed to restore auth session:', error.message);
@@ -52,13 +50,16 @@ export function AuthProvider({ children }) {
     }
     setLoading(false);
 
-    // Listen for storage events to sync auth state across tabs
     const handleStorageChange = (e) => {
-      if (e.key === 'token' || e.key === 'user') {
+      const isPortal = window.location.pathname.startsWith('/portal');
+      const tokenKey = isPortal ? 'token' : 'adminToken';
+      const userKey = isPortal ? 'user' : 'adminUser';
+
+      if (e.key === tokenKey || e.key === userKey) {
         if (!e.newValue) {
           setToken(null);
           setUser(null);
-        } else if (e.key === 'user') {
+        } else if (e.key === userKey) {
           try {
             const parsed = JSON.parse(e.newValue);
             parsed.role = (parsed.role || '').toUpperCase();
@@ -66,7 +67,7 @@ export function AuthProvider({ children }) {
           } catch (err) {
             console.error('Failed to parse user from storage sync:', err);
           }
-        } else if (e.key === 'token') {
+        } else if (e.key === tokenKey) {
           setToken(e.newValue);
         }
       }
@@ -98,38 +99,36 @@ export function AuthProvider({ children }) {
   }, [navigate]);
 
   const login = (userData, authToken) => {
-    // Clear any previous authentication state
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('adminToken');
-
-    // Enforce canonical role format
     userData.role = (userData.role || '').toUpperCase();
 
     setUser(userData);
     setToken(authToken);
-    localStorage.setItem('user', JSON.stringify(userData));
-    localStorage.setItem('token', authToken);
-    
-    // Navigation is deliberately omitted here. 
-    // React Router DOM v6 has race conditions when navigate() is called 
-    // synchronously alongside a context state update. 
-    // Instead, components like InvoiceLogin.jsx and AdminLogin.jsx 
-    // use a useEffect to listen for user state changes and navigate securely.
+
+    const isVendor = userData.role === 'VENDOR';
+    if (isVendor) {
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', authToken);
+    } else {
+      localStorage.setItem('adminUser', JSON.stringify(userData));
+      localStorage.setItem('adminToken', authToken);
+    }
   };
 
   const logout = () => {
-    const isVendor = user?.role === 'VENDOR';
+    const isVendor = user?.role === 'VENDOR' || window.location.pathname.startsWith('/portal');
     
     setUser(null);
     setToken(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('adminToken');
 
-    navigate(isVendor ? '/portal-login' : '/admin-login');
+    if (isVendor) {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      navigate('/portal-login');
+    } else {
+      localStorage.removeItem('adminUser');
+      localStorage.removeItem('adminToken');
+      navigate('/admin-login');
+    }
   };
 
   const value = {
