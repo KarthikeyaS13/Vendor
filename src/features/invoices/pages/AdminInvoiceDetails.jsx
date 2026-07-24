@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, FileText, Download, Building2, Calendar, CheckCircle2, AlertCircle, XCircle, Clock, Banknote, FileBox, Receipt } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { apiClient } from '../../../services/apiClient';
 
 export default function AdminInvoiceDetails({ invoiceId, onClose }) {
   const [invoice, setInvoice] = useState(null);
