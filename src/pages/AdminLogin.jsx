@@ -12,9 +12,8 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   React.useEffect(() => {
-    if (user) {
-      if (user.role !== 'VENDOR') navigate('/dashboard', { replace: true });
-      else navigate('/portal/dashboard', { replace: true });
+    if (user && user.role !== 'VENDOR') {
+      navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
 
