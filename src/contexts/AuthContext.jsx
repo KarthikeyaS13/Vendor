@@ -117,16 +117,14 @@ export function AuthProvider({ children }) {
     setToken(authToken);
 
     const isVendor = normalizedUser.role === 'VENDOR';
-    if (isVendor) {
+    if (normalizedUser.role === 'VENDOR') {
       localStorage.setItem('user', JSON.stringify(normalizedUser));
       localStorage.setItem('token', authToken);
-      // Use setTimeout to ensure React flushes the context state update before navigating,
-      // preventing the ProtectedRoute from instantly bouncing us back to login.
-      setTimeout(() => navigate('/portal/dashboard', { replace: true }), 0);
+      navigate('/portal/dashboard', { replace: true });
     } else {
       localStorage.setItem('adminUser', JSON.stringify(normalizedUser));
       localStorage.setItem('adminToken', authToken);
-      setTimeout(() => navigate('/dashboard', { replace: true }), 0);
+      navigate('/dashboard', { replace: true });
     }
   };
 

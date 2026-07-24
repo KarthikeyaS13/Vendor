@@ -102,8 +102,12 @@ router.get('/:id', async (req, res) => {
 
 // POST /api/purchase-orders
 router.post('/', async (req, res) => {
+  console.log('--- PO Creation Auth Check ---');
+  console.log('JWT Payload:', req.user);
+  console.log('Role:', req.user?.role);
+  
   const allowedRoles = ['admin', 'ADMIN', 'PROCUREMENT', 'FINANCE', 'COMPLIANCE', 'MANAGEMENT'];
-  if (!allowedRoles.includes(req.user.role)) {
+  if (!req.user || !allowedRoles.includes(req.user.role)) {
     return res.status(403).json({ error: 'Forbidden: Admin access required' });
   }
 
@@ -190,8 +194,12 @@ router.post('/', async (req, res) => {
 
 // PUT /api/purchase-orders/:id
 router.put('/:id', async (req, res) => {
+  console.log('--- PO Update Auth Check ---');
+  console.log('JWT Payload:', req.user);
+  console.log('Role:', req.user?.role);
+  
   const allowedRoles = ['admin', 'ADMIN', 'PROCUREMENT', 'FINANCE', 'COMPLIANCE', 'MANAGEMENT'];
-  if (!allowedRoles.includes(req.user.role)) {
+  if (!req.user || !allowedRoles.includes(req.user.role)) {
     return res.status(403).json({ error: 'Forbidden: Admin access required' });
   }
 
