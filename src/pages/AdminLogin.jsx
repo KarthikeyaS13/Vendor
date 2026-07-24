@@ -11,6 +11,7 @@ const AdminLogin = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Redirect if already logged in
   React.useEffect(() => {
     if (user && user.role?.toUpperCase() !== 'VENDOR') {
       navigate('/dashboard', { replace: true });
@@ -51,6 +52,10 @@ const AdminLogin = () => {
 
       // Store the token and user details via AuthContext
       login(data.user, data.token);
+      
+      // Navigate immediately in the event handler to batch the router update 
+      // with the context update in a single React 18 render pass.
+      navigate('/dashboard', { replace: true });
       
     } catch (err) {
       setError(err.message);
