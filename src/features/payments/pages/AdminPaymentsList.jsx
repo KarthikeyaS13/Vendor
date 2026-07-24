@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Banknote } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { apiClient } from '../../../services/apiClient';
 import ProcessPaymentModal from '../components/ProcessPaymentModal';
 
 export default function AdminPaymentsList() {
@@ -12,12 +13,7 @@ export default function AdminPaymentsList() {
 
   const fetchPaymentsQueue = async () => {
     try {
-      const res = await fetch('/api/invoices', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await res.json();
+      const data = await apiClient('/invoices');
       
       // Filter for invoices ready for payment or already paid
       const paymentInvoices = data.filter(inv => ['Accepted', 'Ready for Payment', 'Payment Processing', 'Paid'].includes(inv.status));

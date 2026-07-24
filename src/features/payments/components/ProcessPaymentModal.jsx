@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Banknote, CheckCircle2, Receipt, Calendar } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { apiClient } from '../../../services/apiClient';
 
 export default function ProcessPaymentModal({ invoiceId, onClose }) {
   const [invoice, setInvoice] = useState(null);
@@ -18,10 +19,7 @@ export default function ProcessPaymentModal({ invoiceId, onClose }) {
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
-        const res = await fetch(`/api/invoices/${invoiceId}`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
-        const data = await res.json();
+        const data = await apiClient(`/invoices/${invoiceId}`);
         setInvoice(data);
       } catch (error) {
         console.error('Error fetching invoice details:', error);
@@ -40,25 +38,16 @@ export default function ProcessPaymentModal({ invoiceId, onClose }) {
 
     setIsProcessing(true);
     try {
-      const res = await fetch(`/api/invoices/${invoiceId}/pay`, {
+      const res = await apiClient(`/invoices/${invoiceId}/pay`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
         body: JSON.stringify(paymentData)
       });
       
-      if (res.ok) {
-        toast.success('Payment recorded successfully');
-        onClose(true);
-      } else {
-        const data = await res.json();
-        toast.error(data.error || 'Failed to record payment');
-      }
+      toast.success('Payment recorded successfully');
+      onClose(true);
     } catch (error) {
       console.error('Error recording payment:', error);
-      toast.error('An error occurred');
+      toast.error(error.message || 'Failed to record payment');
     } finally {
       setIsProcessing(false);
     }
